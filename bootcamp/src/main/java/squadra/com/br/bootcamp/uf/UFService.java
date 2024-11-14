@@ -13,11 +13,11 @@ public class UFService {
     private final UFRepository ufRepository;
 
     public Object findByParams(Long codigoUF, String sigla, String nome, Integer status){
-        List<UfVo> result = ufRepository.findByParams(codigoUF,  sigla, nome, status);
-        if((codigoUF == null && sigla == null && nome == null && status != null) || result.isEmpty()) {
-            return result;
+        List<UfVo> result = ufRepository.findByParams(codigoUF, sigla, nome, status);
+        if((codigoUF != null || sigla != null || nome != null) && !result.isEmpty()) {
+            return result.getFirst();
         }
-        return result.getFirst();
+        return result;
     }
 
     public UfVo save(UfVo uf){
