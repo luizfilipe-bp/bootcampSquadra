@@ -20,7 +20,8 @@ public class UFService {
         return result;
     }
 
-    public UfVo save(UfVo uf){
-        return ufRepository.save(uf);
+    public List<UfVo> save(UfVo uf){
+        ufRepository.save(uf);
+        return ufRepository.findAllByOrderByCodigoUFDesc();
     }
 }

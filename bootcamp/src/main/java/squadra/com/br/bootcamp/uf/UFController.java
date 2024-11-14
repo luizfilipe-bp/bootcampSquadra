@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/uf")
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class UFController {
     }
 
     @PostMapping
-    public ResponseEntity<UfVo> save(@RequestBody @Valid UfVo uf){
+    public ResponseEntity<List<UfVo>> save(@Valid @RequestBody UfVo uf) {
         return new ResponseEntity<>(ufService.save(uf), HttpStatus.OK);
     }
 

@@ -26,5 +26,5 @@ public class UfVo {
     private String nome;
 
     @NotNull
-    private int status;
+    private Integer status;
 }

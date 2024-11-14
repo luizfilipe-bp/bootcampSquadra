@@ -16,4 +16,6 @@ public interface UFRepository extends JpaRepository<UfVo, Long> {
             "AND (:status IS NULL OR u.status = :status)" +
             "ORDER BY u.codigoUF DESC")
     List<UfVo> findByParams(Long codigoUF, String sigla, String nome, Integer status);
+
+    List<UfVo> findAllByOrderByCodigoUFDesc();
 }
