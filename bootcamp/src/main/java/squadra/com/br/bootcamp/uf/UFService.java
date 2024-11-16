@@ -35,7 +35,9 @@ public class UFService {
     }
 
     public List<UfVo> save(UfVo uf){
-        existeUfComMesmoSiglaOuNome(uf);
+        if(existeUfComMesmoSiglaOuNome(uf)){
+            throw new ExcecaoPersonalizada("Já existe uma UF com o mesmo nome ou sigla.");
+        }
         ufRepository.save(uf);
         return ufRepository.findAllByOrderByCodigoUFDesc();
     }
@@ -45,7 +47,11 @@ public class UFService {
         if (ufVoAntigo.isEmpty()) {
             throw new ExcecaoPersonalizada("UF com código " + uf.getCodigoUF() + " não encontrada.");
         }
-        if(ufVoAntigo.get().getSigla().equals(uf.getSigla()) && ufVoAntigo.get().getNome().equals(uf.getNome())) {
+
+        boolean mesmaUf = ufVoAntigo.get().getCodigoUF().equals(uf.getCodigoUF()) &&
+                ufVoAntigo.get().getSigla().equals(uf.getSigla()) &&
+                ufVoAntigo.get().getNome().equals(uf.getNome());
+        if(mesmaUf || !existeUfComMesmoSiglaOuNome(uf)) {
 
             try {
                 ufVoAntigo.get().setNome(uf.getNome());
@@ -57,19 +63,16 @@ public class UFService {
                 throw new ExcecaoPersonalizada("Não foi possível realizar a alteração de uf de códigoUF " + uf.getCodigoUF());
             }
         }else{
-            existeUfComMesmoSiglaOuNome(uf);
+            throw new ExcecaoPersonalizada("Já existe uma UF com o mesmo nome ou sigla.");
         }
         return ufRepository.findAllByOrderByCodigoUFDesc();
     }
 
-    private void existeUfComMesmoSiglaOuNome(UfVo uf){
+    private boolean existeUfComMesmoSiglaOuNome(UfVo uf){
          boolean ufExisteNoBanco = ufRepository.findAll().stream()
                  .anyMatch(ufNoBanco ->
                          ufNoBanco.getNome().equalsIgnoreCase(uf.getNome()) ||
                          ufNoBanco.getSigla().equalsIgnoreCase(uf.getSigla()));
-
-        if (ufExisteNoBanco) {
-            throw new ExcecaoPersonalizada("Já existe uma UF com o mesmo nome ou sigla.");
-        }
+        return ufExisteNoBanco;
     }
 }
