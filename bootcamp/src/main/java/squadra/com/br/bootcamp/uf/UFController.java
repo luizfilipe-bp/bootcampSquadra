@@ -30,4 +30,9 @@ public class UFController {
         return new ResponseEntity<>(ufService.save(uf), HttpStatus.OK);
     }
 
+    @PutMapping
+    public ResponseEntity<List<UfVo>> update(@Valid @RequestBody UfVo uf) {
+        return new ResponseEntity<>(ufService.update(uf), HttpStatus.OK);
+    }
+
 }
