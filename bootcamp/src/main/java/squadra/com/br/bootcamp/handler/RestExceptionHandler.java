@@ -33,9 +33,11 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorFormat> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String mensagem = String.format("O campo '%s' recebeu o valor '%s' que não é do tipo correto para este campo.",
+
+        String mensagem = String.format("O campo '%s' recebeu o valor '%s' que não é do tipo correto para este campo. O tipo correto é '%s'.",
                 ex.getName(),
-                ex.getValue());
+                ex.getValue(),
+                ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "desconhecido");
 
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
                 .mensagem(mensagem)
