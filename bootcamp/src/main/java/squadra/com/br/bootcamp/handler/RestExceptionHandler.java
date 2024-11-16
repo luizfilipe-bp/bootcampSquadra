@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.util.ApiErrorFormat;
 
@@ -28,5 +29,19 @@ public class RestExceptionHandler {
                 .codigo(HttpStatus.NOT_FOUND.value())
                 .build();
         return new ResponseEntity<>(apiErrorFormat, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiErrorFormat> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String mensagem = String.format("O campo '%s' recebeu o valor '%s' que não é do tipo correto para este campo.",
+                ex.getName(),
+                ex.getValue());
+
+        ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
+                .mensagem(mensagem)
+                .codigo(HttpStatus.BAD_REQUEST.value())
+                .build();
+
+        return new ResponseEntity<>(apiErrorFormat, HttpStatus.BAD_REQUEST);
     }
 }
