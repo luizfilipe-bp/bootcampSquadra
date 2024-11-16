@@ -43,6 +43,9 @@ public class UFService {
     }
 
     public List<UfVo> update(UfVo uf){
+        if(uf.getCodigoUF() == null){
+            throw new ExcecaoPersonalizada("O campo codigoUF não pode ser nulo.");
+        }
         Optional<UfVo> ufVoAntigo = ufRepository.findById(uf.getCodigoUF());
         if (ufVoAntigo.isEmpty()) {
             throw new ExcecaoPersonalizada("UF com código " + uf.getCodigoUF() + " não encontrada.");
@@ -69,10 +72,9 @@ public class UFService {
     }
 
     private boolean existeUfComMesmoSiglaOuNome(UfVo uf){
-         boolean ufExisteNoBanco = ufRepository.findAll().stream()
+         return ufRepository.findAll().stream()
                  .anyMatch(ufNoBanco ->
                          ufNoBanco.getNome().equalsIgnoreCase(uf.getNome()) ||
                          ufNoBanco.getSigla().equalsIgnoreCase(uf.getSigla()));
-        return ufExisteNoBanco;
     }
 }

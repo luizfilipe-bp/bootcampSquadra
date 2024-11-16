@@ -16,7 +16,6 @@ import org.hibernate.annotations.DynamicUpdate;
 public class UfVo {
 
     @Id
-    @NotNull(message = "0 campo codigoUF não pode ser nulo.")
     @GeneratedValue(generator = "sequenceCodigoUf", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "sequenceCodigoUf", sequenceName = "SEQUENCE_UF", allocationSize = 1)
     @Column(name = "codigo_uf")
