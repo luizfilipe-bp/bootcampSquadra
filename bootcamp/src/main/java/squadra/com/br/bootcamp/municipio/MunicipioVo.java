@@ -19,7 +19,6 @@ import org.hibernate.annotations.DynamicUpdate;
 public class MunicipioVo {
 
     @Id
-    @NotNull(message = "0 campo codigoMunicipio não pode ser nulo.")
     @GeneratedValue(generator = "sequenceCodigoMunicipio", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "sequenceCodigoMunicipio", sequenceName = "SEQUENCE_MUNICIPIO", allocationSize = 1)
     @Column(name = "CODIGO_MUNICIPIO")
@@ -29,6 +28,7 @@ public class MunicipioVo {
     @Column(name = "CODIGO_UF")
     private Long codigoUF;
 
+    @NotNull(message = "O campo nome não pode ser nulo.")
     @Size(min = 1, max = 256, message = "O nome deve ter entre 1 e 256 caracteres.")
     private String nome;
 

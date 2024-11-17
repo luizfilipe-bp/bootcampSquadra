@@ -1,11 +1,12 @@
 package squadra.com.br.bootcamp.municipio;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/municipio")
@@ -22,5 +23,10 @@ public class MunicipioController {
 
         Object result = municipioService.findByParams(codigoMunicipio, codigoUF, nome, status);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping
+    public ResponseEntity<List<MunicipioVo>> save(@Valid @RequestBody MunicipioVo municipioVo) {
+        return new ResponseEntity<>(municipioService.save(municipioVo), HttpStatus.OK);
     }
 }
