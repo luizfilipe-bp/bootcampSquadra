@@ -7,6 +7,7 @@ import squadra.com.br.bootcamp.exception.MunicipioExistenteNaUF;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,19 +35,48 @@ public class MunicipioService {
     }
 
     public List<MunicipioVo> save(MunicipioVo municipio){
-
+        if(existeMunicipioComMesmoNomeNaUf(municipio.getNome(), municipio.getCodigoUF())){
+            throw new MunicipioExistenteNaUF("Não foi possível cadastrar o município " + municipio.getNome() + " na UF de código " + municipio.getCodigoUF() + " já existe um município com este nome na UF");
+        }
         try{
-            existeMunicipioComMesmoNomeNaUf(municipio.getNome(), municipio.getCodigoUF());
             municipioRepository.save(municipio);
             return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
 
-        }catch(MunicipioExistenteNaUF e){
-            throw e;
-        }
-        catch(RuntimeException e){
+        }catch(RuntimeException e){
             System.out.println(e.getMessage());
             throw new ExcecaoPersonalizada("Não foi possível registar o município.");
         }
+    }
+
+    public List<MunicipioVo> update(MunicipioVo municipio){
+        if(municipio.getCodigoMunicipio() == null){
+            throw new ExcecaoPersonalizada("O campo codigoMunicipio não pode ser nulo.");
+        }
+
+        Optional<MunicipioVo> municipioAntigo = municipioRepository.findById(municipio.getCodigoMunicipio());
+        if (municipioAntigo.isEmpty()) {
+            throw new ExcecaoPersonalizada("O Municipio de código " + municipio.getCodigoMunicipio() + " não foi encontrado.");
+        }
+
+        boolean mesmoMunicipio = municipioAntigo.get().getCodigoMunicipio().equals(municipio.getCodigoMunicipio()) &&
+                                municipioAntigo.get().getNome().equalsIgnoreCase(municipio.getNome()) &&
+                                municipioAntigo.get().getCodigoUF().equals(municipio.getCodigoUF());
+
+        if(mesmoMunicipio || !existeMunicipioComMesmoNomeNaUf(municipio.getNome(), municipio.getCodigoUF())){
+            try {
+                municipioAntigo.get().setNome(municipio.getNome());
+                municipioAntigo.get().setCodigoUF(municipio.getCodigoUF());
+                municipioAntigo.get().setStatus(municipio.getStatus());
+                municipioRepository.save(municipioAntigo.get());
+
+            } catch (RuntimeException e) {
+                throw new ExcecaoPersonalizada("Não foi possível realizar a alteração do município de códigoMunicipio " + municipio.getCodigoMunicipio());
+            }
+        }else{
+            throw new ExcecaoPersonalizada("Já existe um município com o mesmo nome na UF " + municipio.getCodigoUF());
+
+        }
+        return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
     }
 
     private List<MunicipioVo> filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(Long codigoMunicipio, Long codigoUF, String nome, Integer status){
@@ -60,13 +90,9 @@ public class MunicipioService {
                 .collect(Collectors.toList());
     }
 
-    public void existeMunicipioComMesmoNomeNaUf(String nomeMunicipio, Long codigoUf) throws MunicipioExistenteNaUF{
-        boolean municipioExisteNaUF =  municipioRepository.findAll().stream()
-                .anyMatch(municipio ->
-                        municipio.getNome().equalsIgnoreCase(nomeMunicipio) &&
-                        municipio.getCodigoUF().equals(codigoUf));
-        if(municipioExisteNaUF){
-            throw new MunicipioExistenteNaUF("Não foi possível cadastrar o município " + nomeMunicipio + " na UF de código " + codigoUf + " já existe um município com este nome na UF");
-        }
+    public boolean existeMunicipioComMesmoNomeNaUf(String nomeMunicipio, Long codigoUf){
+        return municipioRepository.findAll().stream().anyMatch(municipio ->
+                municipio.getNome().equalsIgnoreCase(nomeMunicipio) &&
+                municipio.getCodigoUF().equals(codigoUf));
     }
 }

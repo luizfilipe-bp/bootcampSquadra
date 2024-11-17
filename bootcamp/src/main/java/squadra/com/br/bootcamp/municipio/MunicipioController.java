@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -26,7 +25,12 @@ public class MunicipioController {
     }
 
     @PostMapping
-    public ResponseEntity<List<MunicipioVo>> save(@Valid @RequestBody MunicipioVo municipioVo) {
-        return new ResponseEntity<>(municipioService.save(municipioVo), HttpStatus.OK);
+    public ResponseEntity<List<MunicipioVo>> save(@Valid @RequestBody MunicipioVo municipio) {
+        return new ResponseEntity<>(municipioService.save(municipio), HttpStatus.OK);
+    }
+
+    @PutMapping
+    public ResponseEntity<List<MunicipioVo>> update(@Valid @RequestBody MunicipioVo municipio) {
+        return new ResponseEntity<>(municipioService.update(municipio), HttpStatus.OK);
     }
 }
