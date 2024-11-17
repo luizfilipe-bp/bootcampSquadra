@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -22,11 +24,14 @@ public class UFService {
             if(nome != null){
                 nome = nome.trim();
             }
-            List<UfVo> result = ufRepository.findByParams(codigoUF, sigla, nome, status);
-            if ((codigoUF != null || (sigla != null && !sigla.isEmpty()) || (nome != null && !nome.isEmpty())) && !result.isEmpty()) {
-                return result.getFirst();
+
+            List<UfVo> todasUfs = ufRepository.findAll();
+            List<UfVo> ufsFiltradas = filtrarUfsEOrdenarPorCodigoUF(todasUfs, codigoUF, sigla, nome, status);
+            if ((codigoUF != null || (sigla != null && !sigla.isEmpty()) || (nome != null && !nome.isEmpty())) && !ufsFiltradas.isEmpty()) {
+                return ufsFiltradas.getFirst();
             }
-            return result;
+
+            return ufsFiltradas;
 
         }catch (RuntimeException e){
             System.out.println("Erro na consulta de UF\n" + e.getMessage());
@@ -54,6 +59,7 @@ public class UFService {
         boolean mesmaUf = ufVoAntigo.get().getCodigoUF().equals(uf.getCodigoUF()) &&
                 ufVoAntigo.get().getSigla().equals(uf.getSigla()) &&
                 ufVoAntigo.get().getNome().equals(uf.getNome());
+        
         if(mesmaUf || !existeUfComMesmoSiglaOuNome(uf)) {
 
             try {
@@ -76,5 +82,15 @@ public class UFService {
                  .anyMatch(ufNoBanco ->
                          ufNoBanco.getNome().equalsIgnoreCase(uf.getNome()) ||
                          ufNoBanco.getSigla().equalsIgnoreCase(uf.getSigla()));
+    }
+
+    private List<UfVo> filtrarUfsEOrdenarPorCodigoUF(List<UfVo> listaUfs, Long codigoUF, String sigla, String nome, Integer status){
+        return listaUfs.stream()
+                .filter(uf -> codigoUF == null || uf.getCodigoUF().equals(codigoUF))
+                .filter(uf -> sigla == null || uf.getSigla().equals(sigla))
+                .filter(uf -> nome == null || uf.getNome().equals(nome))
+                .filter(uf -> status == null || uf.getStatus().equals(status))
+                .sorted(Comparator.comparing(UfVo::getCodigoUF).reversed())
+                .collect(Collectors.toList());
     }
 }
