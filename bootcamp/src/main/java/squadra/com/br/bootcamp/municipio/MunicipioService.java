@@ -3,7 +3,7 @@ package squadra.com.br.bootcamp.municipio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
-import squadra.com.br.bootcamp.exception.MunicipioExistenteNaUF;
+import squadra.com.br.bootcamp.exception.registroJaExisteNoBanco;
 
 import java.util.Comparator;
 import java.util.List;
@@ -36,7 +36,7 @@ public class MunicipioService {
 
     public List<MunicipioVo> save(MunicipioVo municipio){
         if(existeMunicipioComMesmoNomeNaUf(municipio.getNome(), municipio.getCodigoUF())){
-            throw new MunicipioExistenteNaUF("Não foi possível cadastrar o município " + municipio.getNome() + " na UF de código " + municipio.getCodigoUF() + " já existe um município com este nome na UF");
+            throw new registroJaExisteNoBanco("Não foi possível cadastrar o município " + municipio.getNome() + " na UF de código " + municipio.getCodigoUF() + " já existe um município com este nome na UF");
         }
         try{
             municipioRepository.save(municipio);
@@ -73,7 +73,7 @@ public class MunicipioService {
                 throw new ExcecaoPersonalizada("Não foi possível realizar a alteração do município de códigoMunicipio " + municipio.getCodigoMunicipio());
             }
         }else{
-            throw new ExcecaoPersonalizada("Já existe um município com o mesmo nome na UF " + municipio.getCodigoUF());
+            throw new registroJaExisteNoBanco("Já existe um município com o mesmo nome na UF " + municipio.getCodigoUF());
 
         }
         return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
