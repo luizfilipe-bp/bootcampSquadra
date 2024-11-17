@@ -3,6 +3,7 @@ package squadra.com.br.bootcamp.uf;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
 
@@ -40,6 +41,7 @@ public class UFService {
         }
     }
 
+    @Transactional
     public List<UfVo> save(UfVo uf){
         try{
             if(existeUfComMesmoSiglaOuNome(uf)){
@@ -52,6 +54,7 @@ public class UFService {
         }
     }
 
+    @Transactional
     public List<UfVo> update(UfVo uf){
         if(uf.getCodigoUF() == null){
             throw new ExcecaoPersonalizada("O campo codigoUF não pode ser nulo.");

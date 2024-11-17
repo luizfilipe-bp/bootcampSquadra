@@ -2,6 +2,7 @@ package squadra.com.br.bootcamp.municipio;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
 
@@ -34,6 +35,7 @@ public class MunicipioService {
         }
     }
 
+    @Transactional
     public List<MunicipioVo> save(MunicipioVo municipio){
         if(existeMunicipioComMesmoNomeNaUf(municipio.getNome(), municipio.getCodigoUF())){
             throw new RegistroJaExisteNoBanco("Não foi possível cadastrar o município " + municipio.getNome() + " na UF de código " + municipio.getCodigoUF() + " já existe um município com este nome na UF");
@@ -48,6 +50,7 @@ public class MunicipioService {
         }
     }
 
+    @Transactional
     public List<MunicipioVo> update(MunicipioVo municipio){
         if(municipio.getCodigoMunicipio() == null){
             throw new ExcecaoPersonalizada("O campo codigoMunicipio não pode ser nulo.");
