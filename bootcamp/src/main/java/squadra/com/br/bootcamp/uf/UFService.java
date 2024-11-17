@@ -40,10 +40,14 @@ public class UFService {
     }
 
     public List<UfVo> save(UfVo uf){
-        if(existeUfComMesmoSiglaOuNome(uf)){
-            throw new ExcecaoPersonalizada("Já existe uma UF com o mesmo nome ou sigla.");
+        try{
+            if(existeUfComMesmoSiglaOuNome(uf)){
+                throw new ExcecaoPersonalizada("Já existe uma UF com o mesmo nome ou sigla.");
+            }
+            ufRepository.save(uf);
+        }catch (RuntimeException ex){
+            throw new ExcecaoPersonalizada("Não foi possível cadastrar a UF");
         }
-        ufRepository.save(uf);
         return ufRepository.findAllByOrderByCodigoUFDesc();
     }
 
