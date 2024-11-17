@@ -4,7 +4,7 @@ package squadra.com.br.bootcamp.uf;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
-import squadra.com.br.bootcamp.exception.registroJaExisteNoBanco;
+import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
 
 import java.util.Comparator;
 import java.util.List;
@@ -43,7 +43,7 @@ public class UFService {
     public List<UfVo> save(UfVo uf){
         try{
             if(existeUfComMesmoSiglaOuNome(uf)){
-                throw new registroJaExisteNoBanco("Já existe uma UF com o mesmo nome ou sigla.");
+                throw new RegistroJaExisteNoBanco("Já existe uma UF com o mesmo nome ou sigla.");
             }
             ufRepository.save(uf);
             return ufRepository.findAllByOrderByCodigoUFDesc();
@@ -77,7 +77,7 @@ public class UFService {
                 throw new ExcecaoPersonalizada("Não foi possível realizar a alteração de uf de códigoUF " + uf.getCodigoUF());
             }
         }else{
-            throw new registroJaExisteNoBanco("Já existe uma UF com o mesmo nome ou sigla.");
+            throw new RegistroJaExisteNoBanco("Já existe uma UF com o mesmo nome ou sigla.");
         }
         return ufRepository.findAllByOrderByCodigoUFDesc();
     }
