@@ -45,10 +45,10 @@ public class UFService {
                 throw new ExcecaoPersonalizada("Já existe uma UF com o mesmo nome ou sigla.");
             }
             ufRepository.save(uf);
+            return ufRepository.findAllByOrderByCodigoUFDesc();
         }catch (RuntimeException ex){
             throw new ExcecaoPersonalizada("Não foi possível cadastrar a UF");
         }
-        return ufRepository.findAllByOrderByCodigoUFDesc();
     }
 
     public List<UfVo> update(UfVo uf){
