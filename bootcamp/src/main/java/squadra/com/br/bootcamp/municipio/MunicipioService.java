@@ -1,10 +1,12 @@
 package squadra.com.br.bootcamp.municipio;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
+import squadra.com.br.bootcamp.uf.UFRepository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MunicipioService {
     private final MunicipioRepository municipioRepository;
-
+    private final UFRepository ufRepository;
     public Object findByParams(Long codigoMunicipio, Long codigoUF, String nome, Integer status){
         try {
             if (nome != null) {
@@ -37,14 +39,18 @@ public class MunicipioService {
 
     @Transactional
     public List<MunicipioVo> save(MunicipioVo municipio){
+        if(!ufExiste(municipio.getCodigoUF())){
+            throw new DataIntegrityViolationException("Não foi possível cadastrar o município, pois não existe UF de códigoUF" + municipio.getCodigoUF());
+        }
         if(existeMunicipioComMesmoNomeNaUf(municipio.getNome(), municipio.getCodigoUF())){
             throw new RegistroJaExisteNoBanco("Não foi possível cadastrar o município " + municipio.getNome() + " na UF de código " + municipio.getCodigoUF() + " já existe um município com este nome na UF");
         }
+
         try{
             municipioRepository.save(municipio);
             return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
 
-        }catch(RuntimeException e){
+        }catch (RuntimeException e){
             System.out.println(e.getMessage());
             throw new ExcecaoPersonalizada("Não foi possível registar o município.");
         }
@@ -97,5 +103,9 @@ public class MunicipioService {
         return municipioRepository.findAll().stream().anyMatch(municipio ->
                 municipio.getNome().equalsIgnoreCase(nomeMunicipio) &&
                 municipio.getCodigoUF().equals(codigoUf));
+    }
+
+    public boolean ufExiste(Long codigoUF){
+        return ufRepository.existsById(codigoUF);
     }
 }
