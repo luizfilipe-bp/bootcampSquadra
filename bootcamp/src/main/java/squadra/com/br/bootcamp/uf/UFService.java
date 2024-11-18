@@ -101,4 +101,8 @@ public class UFService {
                 .sorted(Comparator.comparing(UfVo::getCodigoUF).reversed())
                 .collect(Collectors.toList());
     }
+
+    public boolean ufExiste(Long codigoUF){
+        return ufRepository.existsById(codigoUF);
+    }
 }

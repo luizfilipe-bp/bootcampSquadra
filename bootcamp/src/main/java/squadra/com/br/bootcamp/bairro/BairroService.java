@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
-import squadra.com.br.bootcamp.municipio.MunicipioRepository;
+import squadra.com.br.bootcamp.municipio.MunicipioService;
 
 import java.util.Comparator;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BairroService {
     private final BairroRepository bairroRepository;
-    private final MunicipioRepository municipioRepository;
+    private final MunicipioService municipioService;
 
     public Object findByParams(Long codigoBairro, Long codigoMunicipio, String nome, Integer status){
         try{
@@ -38,7 +38,7 @@ public class BairroService {
 
     @Transactional
     public List<BairroVo> save(BairroVo bairro){
-        if(!municipioExiste(bairro.getCodigoMunicipio())){
+        if(!municipioService.municipioExiste(bairro.getCodigoMunicipio())){
             throw new DataIntegrityViolationException("Não foi possível cadastrar o bairro, não existe municipio de codigoMunicipio " + bairro.getCodigoMunicipio());
         }
         if(existeBairroComMesmoNomeNoMunicipio(bairro.getNome(), bairro.getCodigoMunicipio())){
@@ -70,9 +70,4 @@ public class BairroService {
                 bairro.getNome().equalsIgnoreCase(nomeBairro) &&
                 bairro.getCodigoMunicipio().equals(codigoMunicipio));
     }
-
-    private boolean municipioExiste(Long codigoMunicipio){
-        return municipioRepository.existsById(codigoMunicipio);
-    }
-
 }
