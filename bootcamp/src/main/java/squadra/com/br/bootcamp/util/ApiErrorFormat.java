@@ -7,5 +7,5 @@ import lombok.Data;
 @Builder
 public class ApiErrorFormat {
     private String mensagem;
-    private Integer codigo;
+    private Integer status;
 }
