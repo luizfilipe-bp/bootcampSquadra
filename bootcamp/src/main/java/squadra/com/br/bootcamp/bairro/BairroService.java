@@ -1,8 +1,13 @@
 package squadra.com.br.bootcamp.bairro;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
+import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
+import squadra.com.br.bootcamp.municipio.MunicipioRepository;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BairroService {
     private final BairroRepository bairroRepository;
+    private final MunicipioRepository municipioRepository;
 
     public Object findByParams(Long codigoBairro, Long codigoMunicipio, String nome, Integer status){
         try{
@@ -30,6 +36,22 @@ public class BairroService {
         }
     }
 
+    @Transactional
+    public List<BairroVo> save(BairroVo bairro){
+        if(!municipioExiste(bairro.getCodigoMunicipio())){
+            throw new DataIntegrityViolationException("Não foi possível cadastrar o bairro, não existe municipio de codigoMunicipio " + bairro.getCodigoMunicipio());
+        }
+        if(existeBairroComMesmoNomeNoMunicipio(bairro.getNome(), bairro.getCodigoMunicipio())){
+            throw new RegistroJaExisteNoBanco("Não foi possível cadastrar o bairro " + bairro.getNome() + " no municipio de código " + bairro.getCodigoMunicipio() + " já existe um bairro com este nome no município");
+        }
+
+        try{
+            bairroRepository.save(bairro);
+            return filtrarBairrosEOrdenarPorCodigoBairro(null, null, null, null);
+        }catch(RuntimeException ex){
+            throw new ExcecaoPersonalizada("Não foi possível registar o bairro.");
+        }
+    }
 
     private List<BairroVo> filtrarBairrosEOrdenarPorCodigoBairro(Long codigoBairro, Long codigoMunicipio, String nome, Integer status){
         return bairroRepository.findAll().stream()
@@ -40,6 +62,17 @@ public class BairroService {
                 .sorted(Comparator.comparing(BairroVo::getCodigoMunicipio).reversed()
                 .thenComparing(BairroVo::getCodigoBairro, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
+    }
+
+    private boolean existeBairroComMesmoNomeNoMunicipio(String nomeBairro, Long codigoMunicipio){
+        return bairroRepository.findAll().stream()
+                .anyMatch(bairro ->
+                bairro.getNome().equalsIgnoreCase(nomeBairro) &&
+                bairro.getCodigoMunicipio().equals(codigoMunicipio));
+    }
+
+    private boolean municipioExiste(Long codigoMunicipio){
+        return municipioRepository.existsById(codigoMunicipio);
     }
 
 }

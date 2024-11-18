@@ -1,5 +1,6 @@
 package squadra.com.br.bootcamp.handler;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,21 +13,22 @@ import squadra.com.br.bootcamp.util.ApiErrorFormat;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-    @ExceptionHandler(ExcecaoPersonalizada.class)
-    public ResponseEntity<ApiErrorFormat> genericException(RuntimeException ex){
+    @ExceptionHandler({ExcecaoPersonalizada.class,
+                       DataIntegrityViolationException.class})
+    public ResponseEntity<ApiErrorFormat> handleGenericException(RuntimeException ex){
         ex.printStackTrace();
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
                 .mensagem(ex.getMessage())
-                .codigo(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.NOT_FOUND.value())
                 .build();
         return new ResponseEntity<>(apiErrorFormat, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorFormat> argumentNotValid(MethodArgumentNotValidException ex){
+    public ResponseEntity<ApiErrorFormat> handleArgumentNotValid(MethodArgumentNotValidException ex){
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
                 .mensagem(ex.getFieldError().getDefaultMessage())
-                .codigo(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.NOT_FOUND.value())
                 .build();
         return new ResponseEntity<>(apiErrorFormat, HttpStatus.NOT_FOUND);
     }
@@ -41,7 +43,7 @@ public class RestExceptionHandler {
 
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
                 .mensagem(mensagem)
-                .codigo(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST.value())
                 .build();
 
         return new ResponseEntity<>(apiErrorFormat, HttpStatus.BAD_REQUEST);
