@@ -28,4 +28,9 @@ public class BairroController {
     public ResponseEntity<List<BairroVo>> save(@Valid @RequestBody BairroVo bairro){
         return new ResponseEntity<>(bairroService.save(bairro), HttpStatus.OK);
     }
+
+    @PutMapping
+    public ResponseEntity<List<BairroVo>> update(@Valid @RequestBody BairroVo bairro){
+        return new ResponseEntity<>(bairroService.update(bairro), HttpStatus.OK);
+    }
 }

@@ -99,7 +99,7 @@ public class UFService {
         return todasUfs.stream()
                 .filter(uf -> codigoUF == null || uf.getCodigoUF().equals(codigoUF))
                 .filter(uf -> sigla == null || uf.getSigla().equals(sigla))
-                .filter(uf -> nome == null || uf.getNome().equals(nome))
+                .filter(uf -> nome == null || nome.isEmpty() || uf.getNome().equals(nome))
                 .filter(uf -> status == null || uf.getStatus().equals(status))
                 .sorted(Comparator.comparing(UfVo::getCodigoUF).reversed())
                 .collect(Collectors.toList());

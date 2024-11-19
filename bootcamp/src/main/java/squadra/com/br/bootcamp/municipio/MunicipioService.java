@@ -82,7 +82,7 @@ public class MunicipioService {
         return municipioRepository.findAll().stream()
                 .filter(municipio -> codigoMunicipio == null || municipio.getCodigoMunicipio().equals(codigoMunicipio))
                 .filter(municipio -> codigoUF == null || municipio.getCodigoUF().equals(codigoUF))
-                .filter(municipio -> nome == null || municipio.getNome().equals(nome))
+                .filter(municipio -> nome == null || nome.isEmpty() || municipio.getNome().equals(nome))
                 .filter(municipio -> status == null || municipio.getStatus().equals(status))
                 .sorted(Comparator.comparing(MunicipioVo::getCodigoUF).reversed()
                 .thenComparing(MunicipioVo::getCodigoMunicipio, Comparator.reverseOrder()))
