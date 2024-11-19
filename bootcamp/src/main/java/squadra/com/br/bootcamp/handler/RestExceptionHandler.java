@@ -1,5 +1,6 @@
 package squadra.com.br.bootcamp.handler;
 
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,11 +11,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.util.ApiErrorFormat;
 
+import java.util.Optional;
+
 @RestControllerAdvice
 public class RestExceptionHandler {
 
     @ExceptionHandler({ExcecaoPersonalizada.class,
-                       DataIntegrityViolationException.class})
+                       DataIntegrityViolationException.class,
+                        RuntimeException.class})
     public ResponseEntity<ApiErrorFormat> handleGenericException(RuntimeException ex){
         ex.printStackTrace();
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
@@ -25,13 +29,19 @@ public class RestExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorFormat> handleArgumentNotValid(MethodArgumentNotValidException ex){
+    public ResponseEntity<ApiErrorFormat> handleArgumentNotValid(MethodArgumentNotValidException ex) {
+        String mensagemErro = Optional.ofNullable(ex.getFieldError())
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .orElse("Erro de validação desconhecido.");
+
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
-                .mensagem(ex.getFieldError().getDefaultMessage())
+                .mensagem(mensagemErro)
                 .status(HttpStatus.NOT_FOUND.value())
                 .build();
+
         return new ResponseEntity<>(apiErrorFormat, HttpStatus.NOT_FOUND);
     }
+
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiErrorFormat> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
