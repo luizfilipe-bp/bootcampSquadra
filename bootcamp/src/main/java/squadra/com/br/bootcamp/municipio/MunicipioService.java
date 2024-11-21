@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBancoException;
 import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBancoException;
-import squadra.com.br.bootcamp.pessoa.ResponseGet.MunicipioGetResponseBody;
 import squadra.com.br.bootcamp.uf.UFService;
 
 import java.util.Comparator;

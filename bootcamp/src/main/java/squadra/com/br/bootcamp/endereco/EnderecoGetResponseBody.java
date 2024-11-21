@@ -1,6 +1,7 @@
-package squadra.com.br.bootcamp.pessoa.ResponseGet;
+package squadra.com.br.bootcamp.endereco;
 
 import lombok.Data;
+import squadra.com.br.bootcamp.bairro.BairroGetResponseBody;
 
 @Data
 public class EnderecoGetResponseBody {

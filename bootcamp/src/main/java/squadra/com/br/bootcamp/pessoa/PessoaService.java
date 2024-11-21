@@ -2,16 +2,19 @@ package squadra.com.br.bootcamp.pessoa;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import squadra.com.br.bootcamp.bairro.BairroGetResponseBody;
 import squadra.com.br.bootcamp.bairro.BairroService;
 import squadra.com.br.bootcamp.bairro.BairroVo;
+import squadra.com.br.bootcamp.endereco.EnderecoGetResponseBody;
 import squadra.com.br.bootcamp.endereco.EnderecoService;
 import squadra.com.br.bootcamp.endereco.EnderecoVo;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBancoException;
+import squadra.com.br.bootcamp.municipio.MunicipioGetResponseBody;
 import squadra.com.br.bootcamp.municipio.MunicipioService;
 import squadra.com.br.bootcamp.municipio.MunicipioVo;
-import squadra.com.br.bootcamp.pessoa.ResponseGet.*;
 import squadra.com.br.bootcamp.uf.UFService;
+import squadra.com.br.bootcamp.uf.UfGetResponseBody;
 import squadra.com.br.bootcamp.uf.UfVo;
 
 import java.util.Collections;

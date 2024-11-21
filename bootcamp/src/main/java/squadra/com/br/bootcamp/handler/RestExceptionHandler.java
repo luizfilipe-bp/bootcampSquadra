@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
-import squadra.com.br.bootcamp.util.ApiErrorFormat;
+import squadra.com.br.bootcamp.exception.ApiErrorFormat;
 
 import java.util.Optional;
 

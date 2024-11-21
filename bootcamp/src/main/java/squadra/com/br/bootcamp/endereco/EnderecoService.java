@@ -2,7 +2,6 @@ package squadra.com.br.bootcamp.endereco;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import squadra.com.br.bootcamp.pessoa.ResponseGet.EnderecoGetResponseBody;
 
 import java.util.List;
 

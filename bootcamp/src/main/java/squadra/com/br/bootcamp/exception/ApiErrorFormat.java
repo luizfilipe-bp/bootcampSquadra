@@ -1,4 +1,4 @@
-package squadra.com.br.bootcamp.util;
+package squadra.com.br.bootcamp.exception;
 
 import lombok.Builder;
 import lombok.Data;

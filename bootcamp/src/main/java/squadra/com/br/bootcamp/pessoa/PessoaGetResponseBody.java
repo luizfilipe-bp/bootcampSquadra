@@ -1,6 +1,7 @@
-package squadra.com.br.bootcamp.pessoa.ResponseGet;
+package squadra.com.br.bootcamp.pessoa;
 
 import lombok.Data;
+import squadra.com.br.bootcamp.endereco.EnderecoGetResponseBody;
 
 import java.util.Collections;
 import java.util.List;

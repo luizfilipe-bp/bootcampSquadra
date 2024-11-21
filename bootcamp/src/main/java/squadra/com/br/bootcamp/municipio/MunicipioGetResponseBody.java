@@ -1,6 +1,7 @@
-package squadra.com.br.bootcamp.pessoa.ResponseGet;
+package squadra.com.br.bootcamp.municipio;
 
 import lombok.Data;
+import squadra.com.br.bootcamp.uf.UfGetResponseBody;
 
 @Data
 public class MunicipioGetResponseBody {

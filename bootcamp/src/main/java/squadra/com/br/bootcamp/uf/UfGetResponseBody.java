@@ -1,4 +1,4 @@
-package squadra.com.br.bootcamp.pessoa.ResponseGet;
+package squadra.com.br.bootcamp.uf;
 
 import lombok.Data;
 
