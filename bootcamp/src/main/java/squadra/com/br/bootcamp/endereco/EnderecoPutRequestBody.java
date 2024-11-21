@@ -1,19 +1,18 @@
 package squadra.com.br.bootcamp.endereco;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class EnderecoPostRequestBody {
+public class EnderecoPutRequestBody {
+    @NotNull(message = "O codigoEndereco não pode ser nulo.")
+    private Long codigoEndereco;
 
     @NotNull(message = "O campo codigoPessoa não pode ser nulo.")
-    @Column(name = "CODIGO_PESSOA")
     private Long codigoPessoa;
 
     @NotNull(message = "O campo codigoBairro não pode ser nulo.")
-    @Column(name = "CODIGO_BAIRRO")
     private Long codigoBairro;
 
     @NotNull(message = "O campo nomeRua não pode ser nulo.")

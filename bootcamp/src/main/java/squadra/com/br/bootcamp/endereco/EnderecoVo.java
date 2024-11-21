@@ -36,7 +36,7 @@ public class EnderecoVo {
     @NotNull(message = "O campo numero não pode ser nulo.")
     private String numero;
 
-    @NotNull(message = "O campo complemento não pode ser nulo.")
+    @Size(max = 20, message = "O complemento deve ter no máximo 20 caracteres.")
     private String complemento;
 
     @NotNull(message = "O campo cep não pode ser nulo.")
