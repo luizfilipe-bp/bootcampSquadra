@@ -6,7 +6,8 @@ import squadra.com.br.bootcamp.bairro.BairroService;
 import squadra.com.br.bootcamp.bairro.BairroVo;
 import squadra.com.br.bootcamp.endereco.EnderecoService;
 import squadra.com.br.bootcamp.endereco.EnderecoVo;
-import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
+import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
+import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBancoException;
 import squadra.com.br.bootcamp.municipio.MunicipioService;
 import squadra.com.br.bootcamp.municipio.MunicipioVo;
 import squadra.com.br.bootcamp.pessoa.ResponseGet.*;
@@ -90,11 +91,34 @@ public class PessoaService {
             }
             return Collections.emptyList();
 
-        }catch(ExcecaoPersonalizada ex){
-            throw new ExcecaoPersonalizada("Não foi possível consultar pessoa. " + ex.getMessage());
+        }catch(ExcecaoPersonalizadaException ex){
+            throw new ExcecaoPersonalizadaException("Não foi possível consultar pessoa. " + ex.getMessage());
 
         }catch(RuntimeException ex){
-            throw new ExcecaoPersonalizada("Não foi possível consultar pessoa");
+            throw new ExcecaoPersonalizadaException("Não foi possível consultar pessoa");
+        }
+    }
+
+    public List<PessoaGetResponseBody> save(PessoaPostRequestBody pessoaPostRequestBody){
+        try{
+            verificaExisteLoginCadastrado(pessoaPostRequestBody.getLogin());
+            PessoaVo pessoa = pessoaMapper.toPessoaVo(pessoaPostRequestBody);
+            pessoaRepository.save(pessoa);
+
+            System.out.println(pessoa);
+
+
+        }catch(ExcecaoPersonalizadaException ex){
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa. " + ex.getMessage());
+        }catch(Exception ex){
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa.");
+        }
+        return Collections.emptyList();
+    }
+
+    private void verificaExisteLoginCadastrado(String login) throws RegistroJaExisteNoBancoException {
+        if(pessoaRepository.findByLogin(login).isPresent()){
+            throw new RegistroJaExisteNoBancoException("Já existe um login '" + login + "' cadastrado no banco de dados");
         }
     }
 }

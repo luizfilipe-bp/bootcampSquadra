@@ -1,11 +1,13 @@
 package squadra.com.br.bootcamp.pessoa;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import squadra.com.br.bootcamp.pessoa.ResponseGet.PessoaGetResponseBody;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/pessoa")
@@ -21,5 +23,10 @@ public class PessoaController {
 
         Object result = pessoaService.findByParams(codigoPessoa, login, status);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping
+    public ResponseEntity<List<PessoaGetResponseBody>> save(@Valid @RequestBody PessoaPostRequestBody pessoaPostRequestBody){
+        return new ResponseEntity<>(pessoaService.save(pessoaPostRequestBody), HttpStatus.OK);
     }
 }
