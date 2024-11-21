@@ -2,6 +2,7 @@ package squadra.com.br.bootcamp.pessoa;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.bairro.BairroGetResponseBody;
 import squadra.com.br.bootcamp.bairro.BairroService;
 import squadra.com.br.bootcamp.bairro.BairroVo;
@@ -85,14 +86,7 @@ public class PessoaService {
                             .collect(Collectors.toList());
                 }
             }
-            List<PessoaVo> todasPessoas = pessoaRepository.findAll();
-            if (!todasPessoas.isEmpty()) {
-                return todasPessoas.stream()
-                        .map(pessoaMapper::toGetResponseBody)
-                        .sorted(Comparator.comparing(PessoaGetResponseBody::getCodigoPessoa).reversed())
-                        .collect(Collectors.toList());
-            }
-            return Collections.emptyList();
+            return listarTodasPessoas();
 
         }catch(ExcecaoPersonalizadaException ex){
             throw new ExcecaoPersonalizadaException("Não foi possível consultar pessoa. " + ex.getMessage());
@@ -102,26 +96,39 @@ public class PessoaService {
         }
     }
 
+    @Transactional
     public List<PessoaGetResponseBody> save(PessoaPostRequestBody pessoaPostRequestBody){
         try{
             verificaExisteLoginCadastrado(pessoaPostRequestBody.getLogin());
+            enderecoService.verificaEnderecosValidos(pessoaPostRequestBody.getEnderecos());
+
             PessoaVo pessoa = pessoaMapper.toPessoaVo(pessoaPostRequestBody);
             pessoaRepository.save(pessoa);
-
-            System.out.println(pessoa);
-
+            pessoaPostRequestBody.getEnderecos().forEach(enderecoPostRequestBody -> enderecoPostRequestBody.setCodigoPessoa(pessoa.getCodigoPessoa()));
+            enderecoService.save(pessoaPostRequestBody.getEnderecos());
 
         }catch(ExcecaoPersonalizadaException ex){
             throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa. " + ex.getMessage());
         }catch(Exception ex){
             throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa.");
         }
-        return Collections.emptyList();
+        return listarTodasPessoas();
     }
 
     private void verificaExisteLoginCadastrado(String login) throws RegistroJaExisteNoBancoException {
         if(pessoaRepository.findByLogin(login).isPresent()){
             throw new RegistroJaExisteNoBancoException("Já existe um login '" + login + "' cadastrado no banco de dados");
         }
+    }
+
+    private List<PessoaGetResponseBody> listarTodasPessoas(){
+        List<PessoaVo> todasPessoas = pessoaRepository.findAll();
+        if (!todasPessoas.isEmpty()) {
+            return todasPessoas.stream()
+                    .map(pessoaMapper::toGetResponseBody)
+                    .sorted(Comparator.comparing(PessoaGetResponseBody::getCodigoPessoa).reversed())
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 }

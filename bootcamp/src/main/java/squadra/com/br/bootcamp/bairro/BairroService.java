@@ -57,7 +57,7 @@ public class BairroService {
     public List<BairroVo> update(BairroVo bairro){
         try{
             verificaCodigoBairroNulo(bairro.getCodigoBairro());
-            verificaExisteBairro(bairro.getCodigoBairro());
+            verificaExisteBairroCadastrado(bairro.getCodigoBairro());
             municipioService.verificaExisteMunicipio(bairro.getCodigoMunicipio());
             verificaExisteBairroComMesmoNomeNoMunicipio(bairro);
 
@@ -102,12 +102,13 @@ public class BairroService {
         }
     }
 
-    private void verificaCodigoBairroNulo(Long codigoBairro){
+    private void verificaCodigoBairroNulo(Long codigoBairro) throws ExcecaoPersonalizadaException{
         if(codigoBairro == null){
             throw new ExcecaoPersonalizadaException("O campo codigoBairro não pode ser nulo");
         }
     }
-    private void verificaExisteBairro(Long codigoBairro) throws RegistroNaoExisteNoBancoException {
+    
+    public void verificaExisteBairroCadastrado(Long codigoBairro) throws RegistroNaoExisteNoBancoException {
         if(!bairroRepository.existsById(codigoBairro)){
             throw new RegistroNaoExisteNoBancoException("O bairro de código " + codigoBairro + " não existe no banco de dados");
         }
