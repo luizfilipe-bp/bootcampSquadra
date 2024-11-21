@@ -2,7 +2,6 @@ package squadra.com.br.bootcamp.pessoa.ResponseGet;
 
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
