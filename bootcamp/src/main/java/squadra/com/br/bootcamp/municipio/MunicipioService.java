@@ -3,9 +3,9 @@ package squadra.com.br.bootcamp.municipio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
-import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
-import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBanco;
+import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
+import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBancoException;
+import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBancoException;
 import squadra.com.br.bootcamp.pessoa.ResponseGet.MunicipioGetResponseBody;
 import squadra.com.br.bootcamp.uf.UFService;
 
@@ -35,7 +35,7 @@ public class MunicipioService {
 
         }catch (RuntimeException ex){
             System.out.println(ex.getMessage());
-            throw new ExcecaoPersonalizada("Não foi possível consultar o município no banco de dados.");
+            throw new ExcecaoPersonalizadaException("Não foi possível consultar o município no banco de dados.");
         }
     }
 
@@ -47,11 +47,11 @@ public class MunicipioService {
             municipioRepository.save(municipio);
             return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
 
-        }catch (ExcecaoPersonalizada e){
-            throw new ExcecaoPersonalizada("Não foi possível cadastrar o município. " + e.getMessage());
+        }catch (ExcecaoPersonalizadaException e){
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar o município. " + e.getMessage());
         }catch (RuntimeException e){
             System.out.println(e.getMessage());
-            throw new ExcecaoPersonalizada("Não foi possível cadastrar o município.");
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar o município.");
         }
     }
 
@@ -70,11 +70,11 @@ public class MunicipioService {
                 municipioAntigo.get().setStatus(municipio.getStatus());
                 municipioRepository.save(municipioAntigo.get());
             }
-        }catch(ExcecaoPersonalizada ex){
-          throw new ExcecaoPersonalizada("Não foi possível realizar a alteração do município. " + ex.getMessage());
+        }catch(ExcecaoPersonalizadaException ex){
+          throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração do município. " + ex.getMessage());
 
         } catch (RuntimeException e) {
-            throw new ExcecaoPersonalizada("Não foi possível realizar a alteração do município. ");
+            throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração do município. ");
         }
 
         return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
@@ -91,7 +91,7 @@ public class MunicipioService {
                 .collect(Collectors.toList());
     }
 
-    private void verificaExisteMunicipioComMesmoNomeNaUf(MunicipioVo municipio) throws RegistroJaExisteNoBanco {
+    private void verificaExisteMunicipioComMesmoNomeNaUf(MunicipioVo municipio) throws RegistroJaExisteNoBancoException {
         boolean municipioDeMesmoNomeExiste = municipioRepository.findAll().stream()
                 .anyMatch(municipioDoBanco ->
                 municipioDoBanco.getNome().equalsIgnoreCase(municipio.getNome()) &&
@@ -99,28 +99,28 @@ public class MunicipioService {
                 !municipioDoBanco.getCodigoMunicipio().equals(municipio.getCodigoMunicipio()));
 
         if(municipioDeMesmoNomeExiste){
-            throw new RegistroJaExisteNoBanco("Já existe um município com o mesmo nome " + municipio.getNome()  + " na UF " + municipio.getCodigoUF());
+            throw new RegistroJaExisteNoBancoException("Já existe um município com o mesmo nome " + municipio.getNome()  + " na UF " + municipio.getCodigoUF());
         }
     }
 
-    private void verificaCodigoMunicipioNulo(Long codigoMunicipio) throws ExcecaoPersonalizada{
+    private void verificaCodigoMunicipioNulo(Long codigoMunicipio) throws ExcecaoPersonalizadaException {
         if(codigoMunicipio == null){
-            throw new ExcecaoPersonalizada("O campo codigoMunicipio não pode ser nulo.");
+            throw new ExcecaoPersonalizadaException("O campo codigoMunicipio não pode ser nulo.");
         }
     }
 
-    public void verificaExisteMunicipio(Long codigoMunicipio) throws RegistroNaoExisteNoBanco {
+    public void verificaExisteMunicipio(Long codigoMunicipio) throws RegistroNaoExisteNoBancoException {
         if(!municipioRepository.existsById(codigoMunicipio)){
-            throw new RegistroNaoExisteNoBanco("Não existe município de codigoMunicipio " + codigoMunicipio + " banco de dados.");
+            throw new RegistroNaoExisteNoBancoException("Não existe município de codigoMunicipio " + codigoMunicipio + " banco de dados.");
         }
     }
 
-    public MunicipioVo buscarMunicipioPorCodigoMunicipio(Long codigoMunicipio) throws RegistroNaoExisteNoBanco{
+    public MunicipioVo buscarMunicipioPorCodigoMunicipio(Long codigoMunicipio) throws RegistroNaoExisteNoBancoException {
         Optional<MunicipioVo> municipioVo =  municipioRepository.findById(codigoMunicipio);
         if(municipioVo.isPresent()){
             return municipioVo.get();
         }
-        throw new RegistroNaoExisteNoBanco("Não existe município de codigoMunicipio " + codigoMunicipio);
+        throw new RegistroNaoExisteNoBancoException("Não existe município de codigoMunicipio " + codigoMunicipio);
     }
 
     public MunicipioGetResponseBody converterMunicipioParaGetResponseBody(MunicipioVo municipio){

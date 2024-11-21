@@ -3,9 +3,9 @@ package squadra.com.br.bootcamp.bairro;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
-import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
-import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBanco;
+import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
+import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBancoException;
+import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBancoException;
 import squadra.com.br.bootcamp.municipio.MunicipioService;
 import squadra.com.br.bootcamp.pessoa.ResponseGet.BairroGetResponseBody;
 
@@ -33,7 +33,7 @@ public class BairroService {
             return bairrosFiltrados;
 
         }catch(RuntimeException ex){
-            throw new ExcecaoPersonalizada("Não foi possível consultar o bairro no banco de dados");
+            throw new ExcecaoPersonalizadaException("Não foi possível consultar o bairro no banco de dados");
         }
     }
 
@@ -46,11 +46,11 @@ public class BairroService {
 
             return filtrarBairrosEOrdenarPorCodigoBairro(null, null, null, null);
 
-        }catch (ExcecaoPersonalizada ex){
-            throw new ExcecaoPersonalizada("Não foi possível cadastrar o bairro. " + ex.getMessage());
+        }catch (ExcecaoPersonalizadaException ex){
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar o bairro. " + ex.getMessage());
 
         }catch(RuntimeException ex){
-            throw new ExcecaoPersonalizada("Não foi possível cadastrar o bairro. ");
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar o bairro. ");
         }
     }
 
@@ -72,11 +72,11 @@ public class BairroService {
 
             return filtrarBairrosEOrdenarPorCodigoBairro(null, null, null, null);
 
-        }catch (ExcecaoPersonalizada ex){
-            throw new ExcecaoPersonalizada("Não foi possível cadastrar o bairro. " + ex.getMessage());
+        }catch (ExcecaoPersonalizadaException ex){
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar o bairro. " + ex.getMessage());
 
         }catch(RuntimeException ex){
-            throw new ExcecaoPersonalizada("Não foi possível cadastrar o bairro. ");
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar o bairro. ");
         }
     }
 
@@ -91,7 +91,7 @@ public class BairroService {
                 .collect(Collectors.toList());
     }
 
-    private void verificaExisteBairroComMesmoNomeNoMunicipio(BairroVo bairro) throws RegistroJaExisteNoBanco{
+    private void verificaExisteBairroComMesmoNomeNoMunicipio(BairroVo bairro) throws RegistroJaExisteNoBancoException {
         boolean existeBairroComMesmoNome =  bairroRepository.findAll().stream()
                 .anyMatch(bairroDoBanco ->
                 bairroDoBanco.getNome().equalsIgnoreCase(bairro.getNome()) &&
@@ -99,27 +99,27 @@ public class BairroService {
                 !bairroDoBanco.getCodigoBairro().equals(bairro.getCodigoBairro()));
 
         if(existeBairroComMesmoNome){
-            throw new RegistroJaExisteNoBanco("Já existe um bairro com nome '" + bairro.getNome() + "' no municipio " + bairro.getCodigoMunicipio());
+            throw new RegistroJaExisteNoBancoException("Já existe um bairro com nome '" + bairro.getNome() + "' no municipio " + bairro.getCodigoMunicipio());
         }
     }
 
     private void verificaCodigoBairroNulo(Long codigoBairro){
         if(codigoBairro == null){
-            throw new ExcecaoPersonalizada("O campo codigoBairro não pode ser nulo");
+            throw new ExcecaoPersonalizadaException("O campo codigoBairro não pode ser nulo");
         }
     }
-    private void verificaExisteBairro(Long codigoBairro) throws RegistroNaoExisteNoBanco{
+    private void verificaExisteBairro(Long codigoBairro) throws RegistroNaoExisteNoBancoException {
         if(!bairroRepository.existsById(codigoBairro)){
-            throw new RegistroNaoExisteNoBanco("O bairro de código " + codigoBairro + " não existe no banco de dados");
+            throw new RegistroNaoExisteNoBancoException("O bairro de código " + codigoBairro + " não existe no banco de dados");
         }
     }
 
-    public BairroVo buscarBairroPorCodigoBairro(Long codigoBairro) throws RegistroNaoExisteNoBanco{
+    public BairroVo buscarBairroPorCodigoBairro(Long codigoBairro) throws RegistroNaoExisteNoBancoException {
         Optional<BairroVo> bairro = bairroRepository.findById(codigoBairro);
         if(bairro.isPresent()){
             return bairro.get();
         }
-        throw new RegistroNaoExisteNoBanco("Não existe bairro de codigoBairro " + codigoBairro);
+        throw new RegistroNaoExisteNoBancoException("Não existe bairro de codigoBairro " + codigoBairro);
     }
 
     public BairroGetResponseBody converterBairroVoParaGetResponseBody(BairroVo bairro){

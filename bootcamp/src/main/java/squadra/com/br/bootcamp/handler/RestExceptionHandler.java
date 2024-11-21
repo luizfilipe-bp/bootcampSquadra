@@ -10,7 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
+import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
 import squadra.com.br.bootcamp.util.ApiErrorFormat;
 
 import java.util.Optional;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-    @ExceptionHandler({ExcecaoPersonalizada.class,
+    @ExceptionHandler({ExcecaoPersonalizadaException.class,
                        DataIntegrityViolationException.class,
                         RuntimeException.class})
     public ResponseEntity<ApiErrorFormat> handleGenericException(RuntimeException ex){
