@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
 import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBanco;
+import squadra.com.br.bootcamp.pessoa.ResponseGet.MunicipioGetResponseBody;
 import squadra.com.br.bootcamp.uf.UFService;
 
 import java.util.Comparator;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MunicipioService {
     private final MunicipioRepository municipioRepository;
+    private final MunicipioMapper municipioMapper;
     private final UFService ufService;
 
     public Object findByParams(Long codigoMunicipio, Long codigoUF, String nome, Integer status){
@@ -111,5 +113,17 @@ public class MunicipioService {
         if(!municipioRepository.existsById(codigoMunicipio)){
             throw new RegistroNaoExisteNoBanco("Não existe município de codigoMunicipio " + codigoMunicipio + " banco de dados.");
         }
+    }
+
+    public MunicipioVo buscarMunicipioPorCodigoMunicipio(Long codigoMunicipio) throws RegistroNaoExisteNoBanco{
+        Optional<MunicipioVo> municipioVo =  municipioRepository.findById(codigoMunicipio);
+        if(municipioVo.isPresent()){
+            return municipioVo.get();
+        }
+        throw new RegistroNaoExisteNoBanco("Não existe município de codigoMunicipio " + codigoMunicipio);
+    }
+
+    public MunicipioGetResponseBody converterMunicipioParaGetResponseBody(MunicipioVo municipio){
+        return municipioMapper.toGetResponseBody(municipio);
     }
 }

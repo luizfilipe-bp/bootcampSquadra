@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
 import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBanco;
+import squadra.com.br.bootcamp.pessoa.ResponseGet.UfGetResponseBody;
 
 import java.util.Comparator;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UFService {
     private final UFRepository ufRepository;
+    private final UfMapper ufMapper;
 
     public Object findByParams(Long codigoUF, String sigla, String nome, Integer status) {
         try {
@@ -115,5 +117,17 @@ public class UFService {
         if(!ufRepository.existsById(codigoUF)){
             throw new RegistroNaoExisteNoBanco("A UF de código " + codigoUF + " não existe no banco de dados.");
         }
+    }
+
+    public UfVo buscarUfPorCodigoUf(Long codigoUF) throws RegistroNaoExisteNoBanco {
+        Optional<UfVo> uf = ufRepository.findById(codigoUF);
+        if(uf.isPresent()){
+            return uf.get();
+        }
+        throw new RegistroNaoExisteNoBanco("Não existe UF de codigoUF " + codigoUF);
+    }
+
+    public UfGetResponseBody converterUfVoParaGetResponseBody(UfVo ufVo){
+        return ufMapper.toGetResponseBody(ufVo);
     }
 }

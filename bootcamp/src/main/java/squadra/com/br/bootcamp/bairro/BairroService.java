@@ -7,6 +7,7 @@ import squadra.com.br.bootcamp.exception.ExcecaoPersonalizada;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBanco;
 import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBanco;
 import squadra.com.br.bootcamp.municipio.MunicipioService;
+import squadra.com.br.bootcamp.pessoa.ResponseGet.BairroGetResponseBody;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BairroService {
     private final BairroRepository bairroRepository;
+    private final BairroMapper bairroMapper;
     private final MunicipioService municipioService;
 
     public Object findByParams(Long codigoBairro, Long codigoMunicipio, String nome, Integer status){
@@ -110,6 +112,17 @@ public class BairroService {
         if(!bairroRepository.existsById(codigoBairro)){
             throw new RegistroNaoExisteNoBanco("O bairro de código " + codigoBairro + " não existe no banco de dados");
         }
+    }
 
+    public BairroVo buscarBairroPorCodigoBairro(Long codigoBairro) throws RegistroNaoExisteNoBanco{
+        Optional<BairroVo> bairro = bairroRepository.findById(codigoBairro);
+        if(bairro.isPresent()){
+            return bairro.get();
+        }
+        throw new RegistroNaoExisteNoBanco("Não existe bairro de codigoBairro " + codigoBairro);
+    }
+
+    public BairroGetResponseBody converterBairroVoParaGetResponseBody(BairroVo bairro){
+        return bairroMapper.toGetResponseBody(bairro);
     }
 }
