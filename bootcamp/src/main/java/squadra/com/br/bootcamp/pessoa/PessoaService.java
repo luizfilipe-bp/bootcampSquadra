@@ -13,7 +13,7 @@ import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBancoException;
 import squadra.com.br.bootcamp.municipio.MunicipioGetResponseBody;
 import squadra.com.br.bootcamp.municipio.MunicipioService;
 import squadra.com.br.bootcamp.municipio.MunicipioVo;
-import squadra.com.br.bootcamp.uf.UFService;
+import squadra.com.br.bootcamp.uf.UfService;
 import squadra.com.br.bootcamp.uf.UfGetResponseBody;
 import squadra.com.br.bootcamp.uf.UfVo;
 
@@ -29,7 +29,7 @@ public class PessoaService {
     private final EnderecoService enderecoService;
     private final BairroService bairroService;
     private final MunicipioService municipioService;
-    private final UFService ufService;
+    private final UfService ufService;
 
     private final PessoaRepository pessoaRepository;
     private final PessoaMapper pessoaMapper;

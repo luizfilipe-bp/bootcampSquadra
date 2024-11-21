@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UFService {
-    private final UFRepository ufRepository;
+public class UfService {
+    private final UfRepository ufRepository;
     private final UfMapper ufMapper;
 
     public Object findByParams(Long codigoUF, String sigla, String nome, Integer status) {

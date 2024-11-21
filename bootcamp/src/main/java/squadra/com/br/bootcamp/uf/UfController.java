@@ -11,8 +11,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/uf")
 @RequiredArgsConstructor
-public class UFController {
-    private final UFService ufService;
+public class UfController {
+    private final UfService ufService;
 
     @GetMapping
     public ResponseEntity<Object> findByParams(

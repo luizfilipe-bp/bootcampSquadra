@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBancoException;
 import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBancoException;
-import squadra.com.br.bootcamp.uf.UFService;
+import squadra.com.br.bootcamp.uf.UfService;
 
 import java.util.Comparator;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class MunicipioService {
     private final MunicipioRepository municipioRepository;
     private final MunicipioMapper municipioMapper;
-    private final UFService ufService;
+    private final UfService ufService;
 
     public Object findByParams(Long codigoMunicipio, Long codigoUF, String nome, Integer status){
         try {
