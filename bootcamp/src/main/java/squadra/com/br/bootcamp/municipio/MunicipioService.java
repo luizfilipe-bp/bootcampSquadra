@@ -42,7 +42,7 @@ public class MunicipioService {
     public List<MunicipioVo> save(MunicipioVo municipio){
         try{
             ufService.verificaExisteUf(municipio.getCodigoUF());
-            verificaExisteMunicipioComMesmoNomeNaUf(municipio);
+            verificaExisteMunicipioComMesmoNomeNaUfCadastrado(municipio);
             municipioRepository.save(municipio);
             return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
 
@@ -59,8 +59,8 @@ public class MunicipioService {
         try {
             verificaCodigoMunicipioNulo(municipio.getCodigoMunicipio());
             ufService.verificaExisteUf(municipio.getCodigoUF());
-            verificaExisteMunicipio(municipio.getCodigoMunicipio());
-            verificaExisteMunicipioComMesmoNomeNaUf(municipio);
+            verificaExisteMunicipioCadastrado(municipio.getCodigoMunicipio());
+            verificaExisteMunicipioComMesmoNomeNaUfCadastrado(municipio);
 
             Optional<MunicipioVo> municipioAntigo = municipioRepository.findById(municipio.getCodigoMunicipio());
             if(municipioAntigo.isPresent()) {
@@ -90,7 +90,7 @@ public class MunicipioService {
                 .collect(Collectors.toList());
     }
 
-    private void verificaExisteMunicipioComMesmoNomeNaUf(MunicipioVo municipio) throws RegistroJaExisteNoBancoException {
+    private void verificaExisteMunicipioComMesmoNomeNaUfCadastrado(MunicipioVo municipio) throws RegistroJaExisteNoBancoException {
         boolean municipioDeMesmoNomeExiste = municipioRepository.findAll().stream()
                 .anyMatch(municipioDoBanco ->
                 municipioDoBanco.getNome().equalsIgnoreCase(municipio.getNome()) &&
@@ -108,7 +108,7 @@ public class MunicipioService {
         }
     }
 
-    public void verificaExisteMunicipio(Long codigoMunicipio) throws RegistroNaoExisteNoBancoException {
+    public void verificaExisteMunicipioCadastrado(Long codigoMunicipio) throws RegistroNaoExisteNoBancoException {
         if(!municipioRepository.existsById(codigoMunicipio)){
             throw new RegistroNaoExisteNoBancoException("Não existe município de codigoMunicipio " + codigoMunicipio + " banco de dados.");
         }

@@ -39,7 +39,7 @@ public class BairroService {
     @Transactional
     public List<BairroVo> save(BairroVo bairro){
         try{
-            municipioService.verificaExisteMunicipio(bairro.getCodigoMunicipio());
+            municipioService.verificaExisteMunicipioCadastrado(bairro.getCodigoMunicipio());
             verificaExisteBairroComMesmoNomeNoMunicipio(bairro);
             bairroRepository.save(bairro);
 
@@ -58,7 +58,7 @@ public class BairroService {
         try{
             verificaCodigoBairroNulo(bairro.getCodigoBairro());
             verificaExisteBairroCadastrado(bairro.getCodigoBairro());
-            municipioService.verificaExisteMunicipio(bairro.getCodigoMunicipio());
+            municipioService.verificaExisteMunicipioCadastrado(bairro.getCodigoMunicipio());
             verificaExisteBairroComMesmoNomeNoMunicipio(bairro);
 
             Optional<BairroVo> bairroAntigo = bairroRepository.findById(bairro.getCodigoBairro());
