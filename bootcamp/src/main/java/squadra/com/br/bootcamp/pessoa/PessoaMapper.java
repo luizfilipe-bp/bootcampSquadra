@@ -6,5 +6,6 @@ import org.mapstruct.Mapper;
 public interface PessoaMapper {
     PessoaGetResponseBody toGetResponseBody(PessoaVo pessoa);
     PessoaVo toPessoaVo(PessoaPostRequestBody pessoaPostRequestBody);
+    PessoaVo toPessoaVo(PessoaPutRequestBody pessoaPutRequestBody);
 }
 

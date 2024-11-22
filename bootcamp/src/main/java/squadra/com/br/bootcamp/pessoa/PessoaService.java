@@ -11,6 +11,7 @@ import squadra.com.br.bootcamp.endereco.EnderecoService;
 import squadra.com.br.bootcamp.endereco.EnderecoVo;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
 import squadra.com.br.bootcamp.exception.RegistroJaExisteNoBancoException;
+import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBancoException;
 import squadra.com.br.bootcamp.municipio.MunicipioGetResponseBody;
 import squadra.com.br.bootcamp.municipio.MunicipioService;
 import squadra.com.br.bootcamp.municipio.MunicipioVo;
@@ -18,10 +19,7 @@ import squadra.com.br.bootcamp.uf.UfService;
 import squadra.com.br.bootcamp.uf.UfGetResponseBody;
 import squadra.com.br.bootcamp.uf.UfVo;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -105,7 +103,7 @@ public class PessoaService {
             PessoaVo pessoa = pessoaMapper.toPessoaVo(pessoaPostRequestBody);
             pessoaRepository.save(pessoa);
             pessoaPostRequestBody.getEnderecos().forEach(enderecoPostRequestBody -> enderecoPostRequestBody.setCodigoPessoa(pessoa.getCodigoPessoa()));
-            enderecoService.save(pessoaPostRequestBody.getEnderecos());
+            enderecoService.save(pessoaPostRequestBody.getEnderecos().stream().map(enderecoService::converterParaEnderecoVo).toList());
 
         }catch(ExcecaoPersonalizadaException ex){
             throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa. " + ex.getMessage());
@@ -115,9 +113,53 @@ public class PessoaService {
         return listarTodasPessoas();
     }
 
+    @Transactional
+    public List<PessoaGetResponseBody> update(PessoaPutRequestBody pessoa){
+        try {
+            verificaNaoExisteCodigoPessoaCadastrado(pessoa.getCodigoPessoa());
+
+            Optional<PessoaVo> pessoaBanco = pessoaRepository.findById(pessoa.getCodigoPessoa());
+            if(pessoaBanco.isPresent()){
+                if(!pessoaBanco.get().getLogin().equals(pessoa.getLogin())){
+                    verificaExisteLoginCadastrado(pessoa.getLogin());
+                }
+                PessoaVo pessoaAlterada = pessoaMapper.toPessoaVo(pessoa);
+                pessoaRepository.save(pessoaAlterada);
+            }
+
+            List<EnderecoVo> enderecosSeraoAlterados = pessoa.getEnderecos().stream()
+                    .map(enderecoService::converterParaEnderecoVo).toList();
+
+            List<EnderecoVo> enderecosAntigos = enderecoService.buscarEnderecosPorCodigoPessoa(pessoa.getCodigoPessoa());
+
+            Map<Long, EnderecoVo> enderecoVoMap = enderecosSeraoAlterados.stream()
+                    .collect(Collectors.toMap(EnderecoVo::getCodigoEndereco, endereco -> endereco));
+
+            List<EnderecoVo> enderecosParaRemover = enderecosAntigos.stream()
+                    .filter(endereco -> !enderecoVoMap.containsKey(endereco.getCodigoEndereco()))
+                    .toList();
+
+            enderecoService.save(enderecosSeraoAlterados);
+            enderecoService.delete(enderecosParaRemover);
+            return listarTodasPessoas();
+
+        }catch(ExcecaoPersonalizadaException ex){
+            throw new ExcecaoPersonalizadaException("Não foi possível alterar pessoa. " + ex.getMessage());
+        }catch(Exception ex){
+            throw new ExcecaoPersonalizadaException("Não foi possível alterar pessoa.");
+        }
+
+    }
+
     private void verificaExisteLoginCadastrado(String login) throws RegistroJaExisteNoBancoException {
         if(pessoaRepository.findByLogin(login).isPresent()){
             throw new RegistroJaExisteNoBancoException("Já existe um login '" + login + "' cadastrado no banco de dados");
+        }
+    }
+
+    private void verificaNaoExisteCodigoPessoaCadastrado(Long codigoPessoa){
+        if(!pessoaRepository.existsById(codigoPessoa)){
+            throw new RegistroNaoExisteNoBancoException("Não existe pessoa com codigoPessoa " + codigoPessoa);
         }
     }
 

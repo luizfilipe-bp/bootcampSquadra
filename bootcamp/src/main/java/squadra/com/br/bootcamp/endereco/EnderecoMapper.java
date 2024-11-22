@@ -5,6 +5,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface EnderecoMapper {
-    EnderecoGetResponseBody toGetResponseBody(EnderecoVo endereco);
-    EnderecoVo toEnderecoVo(EnderecoPostRequestBody endereco);
+    EnderecoGetResponseBody toGetResponseBody(EnderecoVo enderecoVo);
+    EnderecoVo toEnderecoVo(EnderecoPostRequestBody enderecoPostRequestBody);
+    EnderecoVo toEnderecoVo(EnderecoPutRequestBody enderecoPutRequestBody);
 }

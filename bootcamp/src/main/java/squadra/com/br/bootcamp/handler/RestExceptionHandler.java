@@ -19,7 +19,6 @@ import java.util.Optional;
 public class RestExceptionHandler {
 
     @ExceptionHandler({ExcecaoPersonalizadaException.class,
-                       DataIntegrityViolationException.class,
                         RuntimeException.class})
     public ResponseEntity<ApiErrorFormat> handleGenericException(RuntimeException ex){
         ex.printStackTrace();
@@ -78,6 +77,17 @@ public class RestExceptionHandler {
                 .status(status.value())
                 .build();
         return new ResponseEntity<>(errorResponse, status);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorFormat> handleDataIntegrityViolation(RuntimeException ex){
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        ex.printStackTrace();
+        ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
+                .mensagem("Houve um erro no banco de dados.")
+                .status(status.value())
+                .build();
+        return new ResponseEntity<>(apiErrorFormat, status);
     }
 
 

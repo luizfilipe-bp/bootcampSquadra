@@ -3,7 +3,7 @@ package squadra.com.br.bootcamp.endereco;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import squadra.com.br.bootcamp.bairro.BairroService;
-import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBancoException;
+import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
 
 import java.util.List;
 
@@ -14,11 +14,12 @@ public class EnderecoService {
     private final BairroService bairroService;
     private final EnderecoMapper enderecoMapper;
 
-    public void save(List<EnderecoPostRequestBody> enderecosPostRequest) throws RegistroNaoExisteNoBancoException {
-        List<EnderecoVo> enderecosVo = enderecosPostRequest.stream()
-                .map(enderecoMapper::toEnderecoVo)
-                .toList();
+    public void save(List<EnderecoVo> enderecosVo) throws ExcecaoPersonalizadaException{
         enderecoRepository.saveAll(enderecosVo);
+    }
+
+    public void delete(List<EnderecoVo> enderecosVo){
+        enderecoRepository.deleteAll(enderecosVo);
     }
 
     public void verificaEnderecosValidos(List<EnderecoPostRequestBody> enderecoPostRequestBody){
@@ -28,7 +29,15 @@ public class EnderecoService {
         return enderecoRepository.findAllByCodigoPessoa(codigoPessoa);
     }
 
-    public EnderecoGetResponseBody converterEnderecoVoParaGetResponseBody(EnderecoVo endereco){
-        return enderecoMapper.toGetResponseBody(endereco);
+    public EnderecoGetResponseBody converterEnderecoVoParaGetResponseBody(EnderecoVo enderecoVo){
+        return enderecoMapper.toGetResponseBody(enderecoVo);
+    }
+
+    public EnderecoVo converterParaEnderecoVo(EnderecoPostRequestBody enderecoPostRequestBody){
+        return enderecoMapper.toEnderecoVo(enderecoPostRequestBody);
+    }
+
+    public EnderecoVo converterParaEnderecoVo(EnderecoPutRequestBody enderecoPutRequestBody){
+        return enderecoMapper.toEnderecoVo(enderecoPutRequestBody);
     }
 }

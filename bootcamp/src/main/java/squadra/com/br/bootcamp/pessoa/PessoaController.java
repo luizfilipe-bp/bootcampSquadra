@@ -28,4 +28,8 @@ public class PessoaController {
     public ResponseEntity<List<PessoaGetResponseBody>> save(@Valid @RequestBody PessoaPostRequestBody pessoaPostRequestBody){
         return new ResponseEntity<>(pessoaService.save(pessoaPostRequestBody), HttpStatus.OK);
     }
+    @PutMapping
+    public ResponseEntity<List<PessoaGetResponseBody>> update(@Valid @RequestBody PessoaPutRequestBody pessoaPutRequestBody){
+        return new ResponseEntity<>(pessoaService.update(pessoaPutRequestBody), HttpStatus.OK);
+    }
 }
