@@ -26,13 +26,13 @@ public class UfController {
     }
 
     @PostMapping
-    public ResponseEntity<List<UfVo>> save(@Valid @RequestBody UfVo uf) {
-        return new ResponseEntity<>(ufService.save(uf), HttpStatus.OK);
+    public ResponseEntity<List<UfVo>> save(@Valid @RequestBody UfPostRequestBody ufPostRequestBody) {
+        return new ResponseEntity<>(ufService.save(ufPostRequestBody), HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<List<UfVo>> update(@Valid @RequestBody UfVo uf) {
-        return new ResponseEntity<>(ufService.update(uf), HttpStatus.OK);
+    public ResponseEntity<List<UfVo>> update(@Valid @RequestBody UfPutRequestBody ufPutRequestBody) {
+        return new ResponseEntity<>(ufService.update(ufPutRequestBody), HttpStatus.OK);
     }
 
 }

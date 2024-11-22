@@ -40,56 +40,59 @@ public class UfService {
     }
 
     @Transactional
-    public List<UfVo> save(UfVo uf){
+    public List<UfVo> save(UfPostRequestBody ufPostRequestBody) {
         try{
-            verificaExisteUfComMesmoSiglaOuNome(uf);
-            ufRepository.save(uf);
+            verificaExisteUfRegistradaComMesmoNome(ufPostRequestBody.getNome());
+            verificaExisteUfRegistradaComMesmaSigla(ufPostRequestBody.getSigla());
+            ufRepository.save(ufMapper.toUfVo(ufPostRequestBody));
             return filtrarUfsEOrdenarPorCodigoUF(null, null, null, null);
 
         }catch (ExcecaoPersonalizadaException ex){
-            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a UF " + uf.getNome() + ". " + ex.getMessage());
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a UF " + ufPostRequestBody.getNome() + ". " + ex.getMessage());
 
         }catch (RuntimeException ex){
-            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a UF" + uf.getNome());
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a UF" + ufPostRequestBody.getNome());
         }
     }
 
     @Transactional
-    public List<UfVo> update(UfVo uf){
+    public List<UfVo> update(UfPutRequestBody ufPutRequestBody) {
         try {
-            verificaCodigoUFNulo(uf.getCodigoUF());
-            verificaExisteUf(uf.getCodigoUF());
-            verificaExisteUfComMesmoSiglaOuNome(uf);
+            verificaNaoExisteUfNoBanco(ufPutRequestBody.getCodigoUF());
+            Optional<UfVo> ufVoAntigo = ufRepository.findById(ufPutRequestBody.getCodigoUF());
 
-            Optional<UfVo> ufVoAntigo = ufRepository.findById(uf.getCodigoUF());
             if(ufVoAntigo.isPresent()) {
-                ufVoAntigo.get().setNome(uf.getNome());
-                ufVoAntigo.get().setSigla(uf.getSigla());
-                ufVoAntigo.get().setStatus(uf.getStatus());
-                ufRepository.save(ufVoAntigo.get());
+                if(!ufPutRequestBody.getSigla().equals(ufVoAntigo.get().getSigla())){
+                    verificaExisteUfRegistradaComMesmaSigla(ufPutRequestBody.getSigla());
+                }
+                if(!ufPutRequestBody.getNome().equals(ufVoAntigo.get().getNome())){
+                    verificaExisteUfRegistradaComMesmoNome(ufPutRequestBody.getNome());
+                }
+                ufRepository.save(ufMapper.toUfVo(ufPutRequestBody));
             }
+            return filtrarUfsEOrdenarPorCodigoUF(null, null, null, null);
 
         }catch (ExcecaoPersonalizadaException ex){
-            throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração de uf de códigoUF " + uf.getCodigoUF() + ". " + ex.getMessage());
+            throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração de uf de códigoUF " + ufPutRequestBody.getCodigoUF() + ". " + ex.getMessage());
 
         }catch (RuntimeException ex) {
-            throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração de uf de códigoUF " + uf.getCodigoUF());
+            throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração de uf de códigoUF " + ufPutRequestBody.getCodigoUF());
         }
-        return filtrarUfsEOrdenarPorCodigoUF(null, null, null, null);
     }
 
-    private void verificaExisteUfComMesmoSiglaOuNome(UfVo uf) throws RegistroJaExisteNoBancoException {
+    private void verificaExisteUfRegistradaComMesmoNome(String nome) throws RegistroJaExisteNoBancoException {
         List<UfVo> todosUfs = ufRepository.findAll();
         boolean ufsComNomesIguais = todosUfs.stream()
-                .anyMatch(ufNoBanco -> ufNoBanco.getNome().equalsIgnoreCase(uf.getNome()) &&
-                                       !ufNoBanco.getCodigoUF().equals(uf.getCodigoUF()));
+                .anyMatch(ufNoBanco -> ufNoBanco.getNome().equalsIgnoreCase(nome));
         if(ufsComNomesIguais){
             throw new RegistroJaExisteNoBancoException("Ja existe uma UF cadastrada com o mesmo nome. ");
         }
+    }
 
+    private void verificaExisteUfRegistradaComMesmaSigla(String sigla) throws RegistroJaExisteNoBancoException {
+        List<UfVo> todosUfs = ufRepository.findAll();
         boolean ufsComSiglasIguais = todosUfs.stream()
-                .anyMatch(ufNoBanco -> ufNoBanco.getSigla().equalsIgnoreCase(uf.getSigla()) &&
-                !ufNoBanco.getCodigoUF().equals(uf.getCodigoUF()));
+                .anyMatch(ufNoBanco -> ufNoBanco.getSigla().equalsIgnoreCase(sigla));
         if (ufsComSiglasIguais) {
             throw new RegistroJaExisteNoBancoException("Já existe uma UF cadastrada com a mesma sigla.");
         }
@@ -106,13 +109,7 @@ public class UfService {
                 .collect(Collectors.toList());
     }
 
-    private void verificaCodigoUFNulo(Long codigoUF){
-        if(codigoUF == null){
-            throw new ExcecaoPersonalizadaException("O campo codigoUF não pode ser nulo.");
-        }
-    }
-
-    public void verificaExisteUf(Long codigoUF) throws RegistroNaoExisteNoBancoException {
+    public void verificaNaoExisteUfNoBanco(Long codigoUF) throws RegistroNaoExisteNoBancoException {
         if(!ufRepository.existsById(codigoUF)){
             throw new RegistroNaoExisteNoBancoException("A UF de código " + codigoUF + " não existe no banco de dados.");
         }

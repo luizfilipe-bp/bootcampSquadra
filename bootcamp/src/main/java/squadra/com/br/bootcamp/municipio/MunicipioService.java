@@ -41,7 +41,7 @@ public class MunicipioService {
     @Transactional
     public List<MunicipioVo> save(MunicipioVo municipio){
         try{
-            ufService.verificaExisteUf(municipio.getCodigoUF());
+            ufService.verificaNaoExisteUfNoBanco(municipio.getCodigoUF());
             verificaExisteMunicipioComMesmoNomeNaUfCadastrado(municipio);
             municipioRepository.save(municipio);
             return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
@@ -58,7 +58,7 @@ public class MunicipioService {
     public List<MunicipioVo> update(MunicipioVo municipio){
         try {
             verificaCodigoMunicipioNulo(municipio.getCodigoMunicipio());
-            ufService.verificaExisteUf(municipio.getCodigoUF());
+            ufService.verificaNaoExisteUfNoBanco(municipio.getCodigoUF());
             verificaExisteMunicipioCadastrado(municipio.getCodigoMunicipio());
             verificaExisteMunicipioComMesmoNomeNaUfCadastrado(municipio);
 
