@@ -25,12 +25,12 @@ public class MunicipioController {
     }
 
     @PostMapping
-    public ResponseEntity<List<MunicipioVo>> save(@Valid @RequestBody MunicipioVo municipio) {
-        return new ResponseEntity<>(municipioService.save(municipio), HttpStatus.OK);
+    public ResponseEntity<List<MunicipioVo>> save(@Valid @RequestBody MunicipioPostRequestBody municipioPostRequestBody) {
+        return new ResponseEntity<>(municipioService.save(municipioPostRequestBody), HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<List<MunicipioVo>> update(@Valid @RequestBody MunicipioVo municipio) {
-        return new ResponseEntity<>(municipioService.update(municipio), HttpStatus.OK);
+    public ResponseEntity<List<MunicipioVo>> update(@Valid @RequestBody MunicipioPutRequestBody municipioPutRequestBody) {
+        return new ResponseEntity<>(municipioService.update(municipioPutRequestBody), HttpStatus.OK);
     }
 }

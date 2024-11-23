@@ -39,11 +39,12 @@ public class MunicipioService {
     }
 
     @Transactional
-    public List<MunicipioVo> save(MunicipioVo municipio){
+    public List<MunicipioVo> save(MunicipioPostRequestBody municipioPostRequestBody){
         try{
-            ufService.verificaNaoExisteUfNoBanco(municipio.getCodigoUF());
-            verificaExisteMunicipioComMesmoNomeNaUfCadastrado(municipio);
-            municipioRepository.save(municipio);
+            ufService.verificaNaoExisteUfNoBanco(municipioPostRequestBody.getCodigoUF());
+            verificaExisteMunicipioCadastradoComMesmoNomeNaUf(municipioPostRequestBody.getNome(), municipioPostRequestBody.getCodigoUF());
+
+            municipioRepository.save(municipioMapper.toMunicipioVo(municipioPostRequestBody));
             return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
 
         }catch (ExcecaoPersonalizadaException e){
@@ -55,19 +56,18 @@ public class MunicipioService {
     }
 
     @Transactional
-    public List<MunicipioVo> update(MunicipioVo municipio){
+    public List<MunicipioVo> update(MunicipioPutRequestBody municipioPutRequestBody){
         try {
-            verificaCodigoMunicipioNulo(municipio.getCodigoMunicipio());
-            ufService.verificaNaoExisteUfNoBanco(municipio.getCodigoUF());
-            verificaExisteMunicipioCadastrado(municipio.getCodigoMunicipio());
-            verificaExisteMunicipioComMesmoNomeNaUfCadastrado(municipio);
+            ufService.verificaNaoExisteUfNoBanco(municipioPutRequestBody.getCodigoUF());
+            verificaExisteMunicipioCadastrado(municipioPutRequestBody.getCodigoMunicipio());
 
-            Optional<MunicipioVo> municipioAntigo = municipioRepository.findById(municipio.getCodigoMunicipio());
+            Optional<MunicipioVo> municipioAntigo = municipioRepository.findById(municipioPutRequestBody.getCodigoMunicipio());
             if(municipioAntigo.isPresent()) {
-                municipioAntigo.get().setNome(municipio.getNome());
-                municipioAntigo.get().setCodigoUF(municipio.getCodigoUF());
-                municipioAntigo.get().setStatus(municipio.getStatus());
-                municipioRepository.save(municipioAntigo.get());
+                if(!municipioAntigo.get().getNome().equals(municipioPutRequestBody.getNome())) {
+                    verificaExisteMunicipioCadastradoComMesmoNomeNaUf(municipioPutRequestBody.getNome(), municipioPutRequestBody.getCodigoUF());
+                }
+
+                municipioRepository.save(municipioMapper.toMunicipioVo(municipioPutRequestBody));
             }
         }catch(ExcecaoPersonalizadaException ex){
           throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração do município. " + ex.getMessage());
@@ -75,7 +75,6 @@ public class MunicipioService {
         } catch (RuntimeException e) {
             throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração do município. ");
         }
-
         return filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(null, null, null, null);
     }
 
@@ -90,21 +89,14 @@ public class MunicipioService {
                 .collect(Collectors.toList());
     }
 
-    private void verificaExisteMunicipioComMesmoNomeNaUfCadastrado(MunicipioVo municipio) throws RegistroJaExisteNoBancoException {
+    private void verificaExisteMunicipioCadastradoComMesmoNomeNaUf(String nome, Long codigoUF) throws RegistroJaExisteNoBancoException {
         boolean municipioDeMesmoNomeExiste = municipioRepository.findAll().stream()
                 .anyMatch(municipioDoBanco ->
-                municipioDoBanco.getNome().equalsIgnoreCase(municipio.getNome()) &&
-                municipioDoBanco.getCodigoUF().equals(municipio.getCodigoUF()) &&
-                !municipioDoBanco.getCodigoMunicipio().equals(municipio.getCodigoMunicipio()));
+                municipioDoBanco.getNome().equalsIgnoreCase(nome) &&
+                municipioDoBanco.getCodigoUF().equals(codigoUF));
 
         if(municipioDeMesmoNomeExiste){
-            throw new RegistroJaExisteNoBancoException("Já existe um município com o mesmo nome " + municipio.getNome()  + " na UF " + municipio.getCodigoUF());
-        }
-    }
-
-    private void verificaCodigoMunicipioNulo(Long codigoMunicipio) throws ExcecaoPersonalizadaException {
-        if(codigoMunicipio == null){
-            throw new ExcecaoPersonalizadaException("O campo codigoMunicipio não pode ser nulo.");
+            throw new RegistroJaExisteNoBancoException("Já existe um município com o mesmo nome " + nome  + " na UF " + codigoUF);
         }
     }
 
