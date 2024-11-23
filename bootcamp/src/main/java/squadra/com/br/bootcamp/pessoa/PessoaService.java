@@ -3,10 +3,10 @@ package squadra.com.br.bootcamp.pessoa;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import squadra.com.br.bootcamp.bairro.BairroGetResponseBody;
+import squadra.com.br.bootcamp.bairro.BairroGetRequestBody;
 import squadra.com.br.bootcamp.bairro.BairroService;
 import squadra.com.br.bootcamp.bairro.BairroVo;
-import squadra.com.br.bootcamp.endereco.EnderecoGetResponseBody;
+import squadra.com.br.bootcamp.endereco.EnderecoGetRequestBody;
 import squadra.com.br.bootcamp.endereco.EnderecoService;
 import squadra.com.br.bootcamp.endereco.EnderecoVo;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
@@ -43,15 +43,15 @@ public class PessoaService {
                 if (pessoa.isPresent()) {
                     List<EnderecoVo> enderecosDaPessoa = enderecoService.buscarEnderecosPorCodigoPessoa(codigoPessoa);
 
-                    List<EnderecoGetResponseBody> enderecosGetResponseBody = enderecosDaPessoa.stream().map(enderecoVo -> {
+                    List<EnderecoGetRequestBody> enderecosGetResponseBody = enderecosDaPessoa.stream().map(enderecoVo -> {
                         BairroVo bairro = bairroService.buscarBairroPorCodigoBairro(enderecoVo.getCodigoBairro());
                         MunicipioVo municipio = municipioService.buscarMunicipioPorCodigoMunicipio(bairro.getCodigoMunicipio());
                         UfVo uf = ufService.buscarUfPorCodigoUf(municipio.getCodigoUF());
 
                         UfGetResponseBody ufResponse = ufService.converterUfVoParaGetResponseBody(uf);
                         MunicipioGetResponseBody municipioResponse = municipioService.converterMunicipioParaGetResponseBody(municipio);
-                        BairroGetResponseBody bairroResponse = bairroService.converterBairroVoParaGetResponseBody(bairro);
-                        EnderecoGetResponseBody enderecoResponse = enderecoService.converterEnderecoVoParaGetResponseBody(enderecoVo);
+                        BairroGetRequestBody bairroResponse = bairroService.converterBairroVoParaGetResponseBody(bairro);
+                        EnderecoGetRequestBody enderecoResponse = enderecoService.converterEnderecoVoParaGetResponseBody(enderecoVo);
 
                         municipioResponse.setUf(ufResponse);
                         bairroResponse.setMunicipio(municipioResponse);
@@ -60,7 +60,7 @@ public class PessoaService {
                         return enderecoResponse;
                     }).toList();
 
-                    PessoaGetResponseBody pessoaResponse = pessoaMapper.toGetResponseBody(pessoa.get());
+                    PessoaGetRequestBody pessoaResponse = pessoaMapper.toGetResponseBody(pessoa.get());
                     pessoaResponse.setEnderecos(enderecosGetResponseBody);
 
                     return pessoaResponse;
@@ -69,7 +69,7 @@ public class PessoaService {
 
             if (codigoPessoa == null && login != null && status == null) {
                 Optional<PessoaVo> pessoa = pessoaRepository.findByLogin(login);
-                PessoaGetResponseBody pessoaGetResponseBody;
+                PessoaGetRequestBody pessoaGetResponseBody;
                 if (pessoa.isPresent()) {
                     pessoaGetResponseBody = pessoaMapper.toGetResponseBody(pessoa.get());
                     return Collections.singletonList(pessoaGetResponseBody);
@@ -95,7 +95,7 @@ public class PessoaService {
     }
 
     @Transactional
-    public List<PessoaGetResponseBody> save(PessoaPostRequestBody pessoaPostRequestBody){
+    public List<PessoaGetRequestBody> save(PessoaPostRequestBody pessoaPostRequestBody){
         try{
             verificaExisteLoginCadastrado(pessoaPostRequestBody.getLogin());
             enderecoService.verificaEnderecosValidos(pessoaPostRequestBody.getEnderecos());
@@ -114,7 +114,7 @@ public class PessoaService {
     }
 
     @Transactional
-    public List<PessoaGetResponseBody> update(PessoaPutRequestBody pessoa){
+    public List<PessoaGetRequestBody> update(PessoaPutRequestBody pessoa){
         try {
             verificaNaoExisteCodigoPessoaCadastrado(pessoa.getCodigoPessoa());
 
@@ -163,12 +163,12 @@ public class PessoaService {
         }
     }
 
-    private List<PessoaGetResponseBody> listarTodasPessoas(){
+    private List<PessoaGetRequestBody> listarTodasPessoas(){
         List<PessoaVo> todasPessoas = pessoaRepository.findAll();
         if (!todasPessoas.isEmpty()) {
             return todasPessoas.stream()
                     .map(pessoaMapper::toGetResponseBody)
-                    .sorted(Comparator.comparing(PessoaGetResponseBody::getCodigoPessoa).reversed())
+                    .sorted(Comparator.comparing(PessoaGetRequestBody::getCodigoPessoa).reversed())
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();

@@ -29,7 +29,7 @@ public class EnderecoService {
         return enderecoRepository.findAllByCodigoPessoa(codigoPessoa);
     }
 
-    public EnderecoGetResponseBody converterEnderecoVoParaGetResponseBody(EnderecoVo enderecoVo){
+    public EnderecoGetRequestBody converterEnderecoVoParaGetResponseBody(EnderecoVo enderecoVo){
         return enderecoMapper.toGetResponseBody(enderecoVo);
     }
 

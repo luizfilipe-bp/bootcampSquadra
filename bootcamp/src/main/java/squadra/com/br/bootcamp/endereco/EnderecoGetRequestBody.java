@@ -1,10 +1,10 @@
 package squadra.com.br.bootcamp.endereco;
 
 import lombok.Data;
-import squadra.com.br.bootcamp.bairro.BairroGetResponseBody;
+import squadra.com.br.bootcamp.bairro.BairroGetRequestBody;
 
 @Data
-public class EnderecoGetResponseBody {
+public class EnderecoGetRequestBody {
     private Long codigoEndereco;
     private Long codigoPessoa;
     private Long codigoBairro;
@@ -12,5 +12,5 @@ public class EnderecoGetResponseBody {
     private String numero;
     private String complemento;
     private String cep;
-    private BairroGetResponseBody bairro = new BairroGetResponseBody();
+    private BairroGetRequestBody bairro = new BairroGetRequestBody();
 }
