@@ -65,24 +65,25 @@ public class PessoaService {
 
                     return pessoaResponse;
                 }
+
+                return Collections.emptyList();
             }
 
             if (codigoPessoa == null && login != null && status == null) {
                 Optional<PessoaVo> pessoa = pessoaRepository.findByLogin(login);
-                PessoaGetRequestBody pessoaGetResponseBody;
                 if (pessoa.isPresent()) {
-                    pessoaGetResponseBody = pessoaMapper.toGetResponseBody(pessoa.get());
-                    return Collections.singletonList(pessoaGetResponseBody);
+                    PessoaGetRequestBody pessoaGetRequestBody;
+                    pessoaGetRequestBody = pessoaMapper.toGetResponseBody(pessoa.get());
+                    return Collections.singletonList(pessoaGetRequestBody);
                 }
+                return Collections.emptyList();
             }
 
             if (codigoPessoa == null && login == null && status != null) {
                 List<PessoaVo> listaDePessoasPorStatus = pessoaRepository.findAllByStatusOrderByCodigoPessoaDesc(status);
-                if (!listaDePessoasPorStatus.isEmpty()) {
-                    return listaDePessoasPorStatus.stream()
-                            .map(pessoaMapper::toGetResponseBody)
-                            .collect(Collectors.toList());
-                }
+                return listaDePessoasPorStatus.stream()
+                        .map(pessoaMapper::toGetResponseBody)
+                        .collect(Collectors.toList());
             }
             return listarTodasPessoas();
 
