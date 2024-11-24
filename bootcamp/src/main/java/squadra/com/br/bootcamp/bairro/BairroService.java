@@ -26,7 +26,7 @@ public class BairroService {
                 nome = nome.trim();
             }
             List<BairroVo> bairrosFiltrados = filtrarBairrosEOrdenarPorCodigoBairro(codigoBairro, codigoMunicipio, nome, status);
-            if(codigoBairro != null && codigoMunicipio == null && (nome == null || nome.isEmpty()) && status == null && !bairrosFiltrados.isEmpty()) {
+            if(codigoBairro != null && !bairrosFiltrados.isEmpty()) {
                 return bairrosFiltrados.getFirst();
             }
             return bairrosFiltrados;
@@ -37,11 +37,11 @@ public class BairroService {
     }
 
     @Transactional
-    public List<BairroVo> save(BairroVo bairro){
+    public List<BairroVo> save(BairroPostRequestBody bairroPostRequestBody){
         try{
-            municipioService.verificaExisteMunicipioCadastrado(bairro.getCodigoMunicipio());
-            verificaExisteBairroComMesmoNomeNoMunicipio(bairro);
-            bairroRepository.save(bairro);
+            municipioService.verificaExisteMunicipioCadastrado(bairroPostRequestBody.getCodigoMunicipio());
+            verificaExisteBairroComMesmoNomeNoMunicipio(bairroPostRequestBody.getNome(), bairroPostRequestBody.getCodigoMunicipio());
+            bairroRepository.save(bairroMapper.toBairroVo(bairroPostRequestBody));
 
             return filtrarBairrosEOrdenarPorCodigoBairro(null, null, null, null);
 
@@ -54,21 +54,20 @@ public class BairroService {
     }
 
     @Transactional
-    public List<BairroVo> update(BairroVo bairro){
+    public List<BairroVo> update(BairroPutRequestBody bairroPutRequestBody){
         try{
-            verificaCodigoBairroNulo(bairro.getCodigoBairro());
-            verificaExisteBairroCadastrado(bairro.getCodigoBairro());
-            municipioService.verificaExisteMunicipioCadastrado(bairro.getCodigoMunicipio());
-            verificaExisteBairroComMesmoNomeNoMunicipio(bairro);
+            verificaExisteBairroCadastrado(bairroPutRequestBody.getCodigoBairro());
+            municipioService.verificaExisteMunicipioCadastrado(bairroPutRequestBody.getCodigoMunicipio());
 
-            Optional<BairroVo> bairroAntigo = bairroRepository.findById(bairro.getCodigoBairro());
+            Optional<BairroVo> bairroAntigo = bairroRepository.findById(bairroPutRequestBody.getCodigoBairro());
             if(bairroAntigo.isPresent()){
-                bairroAntigo.get().setCodigoMunicipio(bairro.getCodigoMunicipio());
-                bairroAntigo.get().setNome(bairro.getNome());
-                bairroAntigo.get().setStatus(bairro.getStatus());
-                bairroRepository.save(bairroAntigo.get());
-            }
+                if(!bairroAntigo.get().getNome().equals(bairroPutRequestBody.getNome()) ||
+                   !bairroAntigo.get().getCodigoMunicipio().equals(bairroPutRequestBody.getCodigoMunicipio())){
 
+                    verificaExisteBairroComMesmoNomeNoMunicipio(bairroPutRequestBody.getNome(), bairroPutRequestBody.getCodigoMunicipio());
+                }
+                bairroRepository.save(bairroMapper.toBairroVo(bairroPutRequestBody));
+            }
             return filtrarBairrosEOrdenarPorCodigoBairro(null, null, null, null);
 
         }catch (ExcecaoPersonalizadaException ex){
@@ -90,21 +89,14 @@ public class BairroService {
                 .collect(Collectors.toList());
     }
 
-    private void verificaExisteBairroComMesmoNomeNoMunicipio(BairroVo bairro) throws RegistroJaExisteNoBancoException {
+    private void verificaExisteBairroComMesmoNomeNoMunicipio(String nome, Long codigoMunicipio) throws RegistroJaExisteNoBancoException {
         boolean existeBairroComMesmoNome =  bairroRepository.findAll().stream()
                 .anyMatch(bairroDoBanco ->
-                bairroDoBanco.getNome().equalsIgnoreCase(bairro.getNome()) &&
-                bairroDoBanco.getCodigoMunicipio().equals(bairro.getCodigoMunicipio()) &&
-                !bairroDoBanco.getCodigoBairro().equals(bairro.getCodigoBairro()));
+                bairroDoBanco.getNome().equalsIgnoreCase(nome) &&
+                bairroDoBanco.getCodigoMunicipio().equals(codigoMunicipio));
 
         if(existeBairroComMesmoNome){
-            throw new RegistroJaExisteNoBancoException("Já existe um bairro com nome '" + bairro.getNome() + "' no municipio " + bairro.getCodigoMunicipio());
-        }
-    }
-
-    private void verificaCodigoBairroNulo(Long codigoBairro) throws ExcecaoPersonalizadaException{
-        if(codigoBairro == null){
-            throw new ExcecaoPersonalizadaException("O campo codigoBairro não pode ser nulo");
+            throw new RegistroJaExisteNoBancoException("Já existe um bairro com nome '" + nome + "' no municipio " + codigoMunicipio);
         }
     }
     
@@ -122,7 +114,7 @@ public class BairroService {
         throw new RegistroNaoExisteNoBancoException("Não existe bairro de codigoBairro " + codigoBairro);
     }
 
-    public BairroGetResponseBody converterBairroVoParaGetResponseBody(BairroVo bairro){
+    public BairroGetRequestBody converterBairroVoParaGetResponseBody(BairroVo bairro){
         return bairroMapper.toGetResponseBody(bairro);
     }
 }

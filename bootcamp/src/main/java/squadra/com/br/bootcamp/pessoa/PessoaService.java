@@ -98,10 +98,11 @@ public class PessoaService {
     public List<PessoaGetRequestBody> save(PessoaPostRequestBody pessoaPostRequestBody){
         try{
             verificaExisteLoginCadastrado(pessoaPostRequestBody.getLogin());
-            enderecoService.verificaEnderecosValidos(pessoaPostRequestBody.getEnderecos());
+            pessoaPostRequestBody.getEnderecos().forEach(endereco -> bairroService.verificaExisteBairroCadastrado(endereco.getCodigoBairro()));
 
             PessoaVo pessoa = pessoaMapper.toPessoaVo(pessoaPostRequestBody);
             pessoaRepository.save(pessoa);
+
             pessoaPostRequestBody.getEnderecos().forEach(enderecoPostRequestBody -> enderecoPostRequestBody.setCodigoPessoa(pessoa.getCodigoPessoa()));
             enderecoService.save(pessoaPostRequestBody.getEnderecos().stream().map(enderecoService::converterParaEnderecoVo).toList());
 
@@ -157,7 +158,7 @@ public class PessoaService {
         }
     }
 
-    private void verificaNaoExisteCodigoPessoaCadastrado(Long codigoPessoa){
+    private void verificaNaoExisteCodigoPessoaCadastrado(Long codigoPessoa) throws RegistroNaoExisteNoBancoException{
         if(!pessoaRepository.existsById(codigoPessoa)){
             throw new RegistroNaoExisteNoBancoException("Não existe pessoa com codigoPessoa " + codigoPessoa);
         }

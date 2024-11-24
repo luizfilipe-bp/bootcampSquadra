@@ -25,12 +25,12 @@ public class BairroController {
     }
 
     @PostMapping
-    public ResponseEntity<List<BairroVo>> save(@Valid @RequestBody BairroVo bairro){
-        return new ResponseEntity<>(bairroService.save(bairro), HttpStatus.OK);
+    public ResponseEntity<List<BairroVo>> save(@Valid @RequestBody BairroPostRequestBody bairroPutRequestBody){
+        return new ResponseEntity<>(bairroService.save(bairroPutRequestBody), HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<List<BairroVo>> update(@Valid @RequestBody BairroVo bairro){
-        return new ResponseEntity<>(bairroService.update(bairro), HttpStatus.OK);
+    public ResponseEntity<List<BairroVo>> update(@Valid @RequestBody BairroPutRequestBody bairroPutRequestBody){
+        return new ResponseEntity<>(bairroService.update(bairroPutRequestBody), HttpStatus.OK);
     }
 }

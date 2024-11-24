@@ -2,7 +2,6 @@ package squadra.com.br.bootcamp.endereco;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import squadra.com.br.bootcamp.bairro.BairroService;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
 
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EnderecoService {
     private final EnderecoRepository enderecoRepository;
-    private final BairroService bairroService;
     private final EnderecoMapper enderecoMapper;
 
     public void save(List<EnderecoVo> enderecosVo) throws ExcecaoPersonalizadaException{
@@ -22,9 +20,6 @@ public class EnderecoService {
         enderecoRepository.deleteAll(enderecosVo);
     }
 
-    public void verificaEnderecosValidos(List<EnderecoPostRequestBody> enderecoPostRequestBody){
-        enderecoPostRequestBody.forEach(endereco -> bairroService.verificaExisteBairroCadastrado(endereco.getCodigoBairro()));
-    }
     public List<EnderecoVo> buscarEnderecosPorCodigoPessoa(Long codigoPessoa){
         return enderecoRepository.findAllByCodigoPessoa(codigoPessoa);
     }

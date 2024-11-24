@@ -21,26 +21,28 @@ public class RestExceptionHandler {
     @ExceptionHandler({ExcecaoPersonalizadaException.class,
                         RuntimeException.class})
     public ResponseEntity<ApiErrorFormat> handleGenericException(RuntimeException ex){
+        HttpStatus status = HttpStatus.NOT_FOUND;
         ex.printStackTrace();
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
                 .mensagem(ex.getMessage())
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(status.value())
                 .build();
-        return new ResponseEntity<>(apiErrorFormat, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(apiErrorFormat, status);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorFormat> handleArgumentNotValid(MethodArgumentNotValidException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
         String mensagemErro = Optional.ofNullable(ex.getFieldError())
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .orElse("Erro de validação desconhecido.");
 
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
                 .mensagem(mensagemErro)
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(status.value())
                 .build();
 
-        return new ResponseEntity<>(apiErrorFormat, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(apiErrorFormat, status);
     }
 
 
@@ -84,7 +86,7 @@ public class RestExceptionHandler {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ex.printStackTrace();
         ApiErrorFormat apiErrorFormat = ApiErrorFormat.builder()
-                .mensagem("Houve um erro no banco de dados.")
+                .mensagem("Houve um erro de integridade no banco de dados.")
                 .status(status.value())
                 .build();
         return new ResponseEntity<>(apiErrorFormat, status);

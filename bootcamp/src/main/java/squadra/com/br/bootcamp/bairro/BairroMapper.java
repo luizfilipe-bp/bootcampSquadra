@@ -4,5 +4,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface BairroMapper {
-    BairroGetResponseBody toGetResponseBody(BairroVo bairroVo);
+    BairroVo toBairroVo(BairroPostRequestBody bairroPutRequestBody);
+    BairroVo toBairroVo(BairroPutRequestBody bairroPutRequestBody);
+    BairroGetRequestBody toGetResponseBody(BairroVo bairroVo);
 }

@@ -34,7 +34,6 @@ public class UfService {
             return ufsFiltradas;
 
         }catch (RuntimeException e){
-            System.out.println("Erro na consulta de UF" + e.getMessage());
             throw new ExcecaoPersonalizadaException("Não foi possível consultar UF no banco de dados.");
         }
     }
@@ -58,7 +57,7 @@ public class UfService {
     @Transactional
     public List<UfVo> update(UfPutRequestBody ufPutRequestBody) {
         try {
-            verificaNaoExisteUfNoBanco(ufPutRequestBody.getCodigoUF());
+            verificaNaoExisteUfCadastradaNoBanco(ufPutRequestBody.getCodigoUF());
             Optional<UfVo> ufVoAntigo = ufRepository.findById(ufPutRequestBody.getCodigoUF());
 
             if(ufVoAntigo.isPresent()) {
@@ -109,7 +108,7 @@ public class UfService {
                 .collect(Collectors.toList());
     }
 
-    public void verificaNaoExisteUfNoBanco(Long codigoUF) throws RegistroNaoExisteNoBancoException {
+    public void verificaNaoExisteUfCadastradaNoBanco(Long codigoUF) throws RegistroNaoExisteNoBancoException {
         if(!ufRepository.existsById(codigoUF)){
             throw new RegistroNaoExisteNoBancoException("A UF de código " + codigoUF + " não existe no banco de dados.");
         }

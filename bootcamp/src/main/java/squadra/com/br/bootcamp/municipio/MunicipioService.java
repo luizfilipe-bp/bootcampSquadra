@@ -41,7 +41,7 @@ public class MunicipioService {
     @Transactional
     public List<MunicipioVo> save(MunicipioPostRequestBody municipioPostRequestBody){
         try{
-            ufService.verificaNaoExisteUfNoBanco(municipioPostRequestBody.getCodigoUF());
+            ufService.verificaNaoExisteUfCadastradaNoBanco(municipioPostRequestBody.getCodigoUF());
             verificaExisteMunicipioCadastradoComMesmoNomeNaUf(municipioPostRequestBody.getNome(), municipioPostRequestBody.getCodigoUF());
 
             municipioRepository.save(municipioMapper.toMunicipioVo(municipioPostRequestBody));
@@ -58,17 +58,19 @@ public class MunicipioService {
     @Transactional
     public List<MunicipioVo> update(MunicipioPutRequestBody municipioPutRequestBody){
         try {
-            ufService.verificaNaoExisteUfNoBanco(municipioPutRequestBody.getCodigoUF());
+            ufService.verificaNaoExisteUfCadastradaNoBanco(municipioPutRequestBody.getCodigoUF());
             verificaExisteMunicipioCadastrado(municipioPutRequestBody.getCodigoMunicipio());
 
             Optional<MunicipioVo> municipioAntigo = municipioRepository.findById(municipioPutRequestBody.getCodigoMunicipio());
             if(municipioAntigo.isPresent()) {
-                if(!municipioAntigo.get().getNome().equals(municipioPutRequestBody.getNome())) {
+                if(!municipioAntigo.get().getNome().equals(municipioPutRequestBody.getNome()) ||
+                   !municipioAntigo.get().getCodigoUF().equals(municipioPutRequestBody.getCodigoUF())) {
+
                     verificaExisteMunicipioCadastradoComMesmoNomeNaUf(municipioPutRequestBody.getNome(), municipioPutRequestBody.getCodigoUF());
                 }
-
                 municipioRepository.save(municipioMapper.toMunicipioVo(municipioPutRequestBody));
             }
+
         }catch(ExcecaoPersonalizadaException ex){
           throw new ExcecaoPersonalizadaException("Não foi possível realizar a alteração do município. " + ex.getMessage());
 
