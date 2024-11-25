@@ -101,7 +101,7 @@ public class UfService {
         List<UfVo> todasUfs = ufRepository.findAll();
         return todasUfs.stream()
                 .filter(uf -> codigoUF == null || uf.getCodigoUF().equals(codigoUF))
-                .filter(uf -> sigla == null || uf.getSigla().equals(sigla))
+                .filter(uf -> sigla == null || sigla.isEmpty() || uf.getSigla().equals(sigla))
                 .filter(uf -> nome == null || nome.isEmpty() || uf.getNome().equals(nome))
                 .filter(uf -> status == null || uf.getStatus().equals(status))
                 .sorted(Comparator.comparing(UfVo::getCodigoUF).reversed())
