@@ -27,7 +27,7 @@ public class MunicipioService {
             }
 
             List<MunicipioVo> municipiosFiltrados = filtrarMunicipiosEOrdenarPorCodigoUFCodigoMunicipio(codigoMunicipio, codigoUF, nome, status);
-            if (codigoMunicipio != null && codigoUF == null && (nome == null || nome.isEmpty()) && status == null && !municipiosFiltrados.isEmpty()) {
+            if (codigoMunicipio != null && !municipiosFiltrados.isEmpty()) {
                 return municipiosFiltrados.getFirst();
             }
             return municipiosFiltrados;
