@@ -7,11 +7,6 @@ import lombok.Data;
 
 @Data
 public class EnderecoPostRequestBody {
-
-    @NotNull(message = "O campo codigoPessoa não pode ser nulo.")
-    @Digits(integer = 9, fraction = 0, message = "O codigoPessoa deve ser um número inteiro de 9 digitos")
-    private Long codigoPessoa;
-
     @NotNull(message = "O campo codigoBairro não pode ser nulo.")
     @Digits(integer = 9, fraction = 0, message = "O codigoBairro deve ser um número inteiro de 9 digitos")
     private Long codigoBairro;
@@ -28,5 +23,6 @@ public class EnderecoPostRequestBody {
     private String complemento;
 
     @NotNull(message = "O campo cep não pode ser nulo.")
+    @Size(max = 10, message = "O cep deve ter no máximo 10 caracteres.")
     private String cep;
 }

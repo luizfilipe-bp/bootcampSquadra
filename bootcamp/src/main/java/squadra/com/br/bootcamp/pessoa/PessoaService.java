@@ -1,8 +1,10 @@
 package squadra.com.br.bootcamp.pessoa;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import squadra.com.br.bootcamp.bairro.BairroGetRequestBody;
 import squadra.com.br.bootcamp.bairro.BairroService;
 import squadra.com.br.bootcamp.bairro.BairroVo;
@@ -23,6 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 public class PessoaService {
     private final EnderecoService enderecoService;
@@ -100,15 +103,20 @@ public class PessoaService {
         try{
             verificaExisteLoginCadastrado(pessoaPostRequestBody.getLogin());
             pessoaPostRequestBody.getEnderecos().forEach(endereco -> bairroService.verificaExisteBairroCadastrado(endereco.getCodigoBairro()));
+            List<EnderecoVo> enderecos = pessoaPostRequestBody.getEnderecos().stream().map(enderecoService::converterParaEnderecoVo).toList();
 
             PessoaVo pessoa = pessoaMapper.toPessoaVo(pessoaPostRequestBody);
             pessoaRepository.save(pessoa);
 
-            pessoaPostRequestBody.getEnderecos().forEach(enderecoPostRequestBody -> enderecoPostRequestBody.setCodigoPessoa(pessoa.getCodigoPessoa()));
-            enderecoService.save(pessoaPostRequestBody.getEnderecos().stream().map(enderecoService::converterParaEnderecoVo).toList());
+            enderecos.forEach(endereco -> endereco.setCodigoPessoa(pessoa.getCodigoPessoa()));
+            enderecoService.save(enderecos);
 
-        }catch(ExcecaoPersonalizadaException ex){
+        }catch(ExcecaoPersonalizadaException ex) {
             throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa. " + ex.getMessage());
+
+        }catch(ConstraintViolationException ex) {
+            throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa. Houve um problema no endereço: " + ex.getConstraintViolations().iterator().next().getMessage());
+
         }catch(Exception ex){
             throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa.");
         }
@@ -145,8 +153,12 @@ public class PessoaService {
             enderecoService.delete(enderecosParaRemover);
             return listarTodasPessoas();
 
-        }catch(ExcecaoPersonalizadaException ex){
+        }catch(ExcecaoPersonalizadaException ex) {
             throw new ExcecaoPersonalizadaException("Não foi possível alterar pessoa. " + ex.getMessage());
+
+        }catch(ConstraintViolationException ex) {
+            throw new ExcecaoPersonalizadaException("Não foi possível alterar pessoa. Houve um problema no endereço: " + ex.getConstraintViolations().iterator().next().getMessage());
+
         }catch(Exception ex){
             throw new ExcecaoPersonalizadaException("Não foi possível alterar pessoa.");
         }
