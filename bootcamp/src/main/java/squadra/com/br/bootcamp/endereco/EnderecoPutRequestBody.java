@@ -31,5 +31,6 @@ public class EnderecoPutRequestBody {
     private String complemento;
 
     @NotNull(message = "O campo cep não pode ser nulo.")
+    @Size(max = 10, message = "O cep deve ter no máximo 10 caracteres.")
     private String cep;
 }
