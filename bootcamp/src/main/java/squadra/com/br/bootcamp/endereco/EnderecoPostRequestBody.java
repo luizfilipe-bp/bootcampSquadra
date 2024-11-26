@@ -1,6 +1,6 @@
 package squadra.com.br.bootcamp.endereco;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -9,11 +9,11 @@ import lombok.Data;
 public class EnderecoPostRequestBody {
 
     @NotNull(message = "O campo codigoPessoa não pode ser nulo.")
-    @Column(name = "CODIGO_PESSOA")
+    @Digits(integer = 9, fraction = 0, message = "O codigoPessoa deve ser um número inteiro de 9 digitos")
     private Long codigoPessoa;
 
     @NotNull(message = "O campo codigoBairro não pode ser nulo.")
-    @Column(name = "CODIGO_BAIRRO")
+    @Digits(integer = 9, fraction = 0, message = "O codigoBairro deve ser um número inteiro de 9 digitos")
     private Long codigoBairro;
 
     @NotNull(message = "O campo nomeRua não pode ser nulo.")

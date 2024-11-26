@@ -1,7 +1,9 @@
 package squadra.com.br.bootcamp.endereco;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
 
 import java.util.List;
@@ -12,7 +14,9 @@ public class EnderecoService {
     private final EnderecoRepository enderecoRepository;
     private final EnderecoMapper enderecoMapper;
 
-    public void save(List<EnderecoVo> enderecosVo) throws ExcecaoPersonalizadaException{
+    @Transactional
+    public void save(@Valid List<EnderecoVo> enderecosVo) throws ExcecaoPersonalizadaException{
+
         enderecoRepository.saveAll(enderecosVo);
     }
 
