@@ -7,8 +7,7 @@ import lombok.Data;
 
 @Data
 public class EnderecoPutRequestBody {
-    @NotNull(message = "O codigoEndereco não pode ser nulo.")
-    @Digits(integer = 9, fraction = 0, message = "O codigoEndereco deve ser um número inteiro de 9 digitos")
+
     private Long codigoEndereco;
 
     @NotNull(message = "O campo codigoPessoa não pode ser nulo.")

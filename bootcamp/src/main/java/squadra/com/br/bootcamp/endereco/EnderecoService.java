@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import squadra.com.br.bootcamp.exception.ExcecaoPersonalizadaException;
+import squadra.com.br.bootcamp.exception.RegistroNaoExisteNoBancoException;
 
 import java.util.List;
 
@@ -17,8 +17,7 @@ public class EnderecoService {
     private final EnderecoMapper enderecoMapper;
 
     @Transactional
-    public void save(List<EnderecoVo> enderecosVo) throws ExcecaoPersonalizadaException{
-
+    public void save(List<EnderecoVo> enderecosVo){
         enderecoRepository.saveAll(enderecosVo);
     }
 
@@ -40,5 +39,12 @@ public class EnderecoService {
 
     public EnderecoVo converterParaEnderecoVo(@Valid EnderecoPutRequestBody enderecoPutRequestBody){
         return enderecoMapper.toEnderecoVo(enderecoPutRequestBody);
+    }
+
+    public void verificaExisteEnderecoCadastrado(Long codigoEndereco) throws RegistroNaoExisteNoBancoException{
+        boolean existeEndereco = enderecoRepository.existsById(codigoEndereco);
+        if(!existeEndereco){
+            throw new RegistroNaoExisteNoBancoException("O existe endereco cadastrado com codigoEndereco " + codigoEndereco );
+        }
     }
 }

@@ -64,7 +64,7 @@ public class PessoaService {
                     }).toList();
 
                     PessoaGetRequestBody pessoaResponse = pessoaMapper.toGetResponseBody(pessoa.get());
-                    pessoaResponse.setEnderecos(enderecosGetResponseBody);
+                    pessoaResponse.setEnderecos(enderecosGetResponseBody.reversed());
 
                     return pessoaResponse;
                 }
@@ -137,6 +137,13 @@ public class PessoaService {
                 pessoaRepository.save(pessoaAlterada);
             }
 
+            pessoa.getEnderecos().forEach(endereco ->
+            {   bairroService.verificaExisteBairroCadastrado(endereco.getCodigoBairro());
+                if(endereco.getCodigoEndereco() != null){
+                    enderecoService.verificaExisteEnderecoCadastrado(endereco.getCodigoEndereco());
+                }
+            });
+
             List<EnderecoVo> enderecosSeraoAlterados = pessoa.getEnderecos().stream()
                     .map(enderecoService::converterParaEnderecoVo).toList();
 
@@ -160,6 +167,7 @@ public class PessoaService {
             throw new ExcecaoPersonalizadaException("Não foi possível alterar pessoa. Houve um problema no endereço: " + ex.getConstraintViolations().iterator().next().getMessage());
 
         }catch(Exception ex){
+            System.out.println(ex.getMessage());
             throw new ExcecaoPersonalizadaException("Não foi possível alterar pessoa.");
         }
 
