@@ -41,54 +41,32 @@ public class PessoaService {
             if (login != null) {
                 login = login.trim();
             }
-            if (codigoPessoa != null && (login == null || login.isEmpty()) && status == null) {
-                Optional<PessoaVo> pessoa = pessoaRepository.findById(codigoPessoa);
-                if (pessoa.isPresent()) {
-                    List<EnderecoVo> enderecosDaPessoa = enderecoService.buscarEnderecosPorCodigoPessoa(codigoPessoa);
+            List<PessoaGetRequestBody> pessoasFiltradas = filtrarEOrdenarPessoas(codigoPessoa, login, status);
+            if (codigoPessoa != null && !pessoasFiltradas.isEmpty()) {
+                List<EnderecoVo> enderecosDaPessoa = enderecoService.buscarEnderecosPorCodigoPessoa(codigoPessoa);
 
-                    List<EnderecoGetRequestBody> enderecosGetResponseBody = enderecosDaPessoa.stream().map(enderecoVo -> {
-                        BairroVo bairro = bairroService.buscarBairroPorCodigoBairro(enderecoVo.getCodigoBairro());
-                        MunicipioVo municipio = municipioService.buscarMunicipioPorCodigoMunicipio(bairro.getCodigoMunicipio());
-                        UfVo uf = ufService.buscarUfPorCodigoUf(municipio.getCodigoUF());
+                List<EnderecoGetRequestBody> enderecosGetResponseBody = enderecosDaPessoa.stream().map(enderecoVo -> {
+                    BairroVo bairro = bairroService.buscarBairroPorCodigoBairro(enderecoVo.getCodigoBairro());
+                    MunicipioVo municipio = municipioService.buscarMunicipioPorCodigoMunicipio(bairro.getCodigoMunicipio());
+                    UfVo uf = ufService.buscarUfPorCodigoUf(municipio.getCodigoUF());
 
-                        UfGetResponseBody ufResponse = ufService.converterUfVoParaGetResponseBody(uf);
-                        MunicipioGetResponseBody municipioResponse = municipioService.converterMunicipioParaGetResponseBody(municipio);
-                        BairroGetRequestBody bairroResponse = bairroService.converterBairroVoParaGetResponseBody(bairro);
-                        EnderecoGetRequestBody enderecoResponse = enderecoService.converterEnderecoVoParaGetResponseBody(enderecoVo);
+                    UfGetResponseBody ufResponse = ufService.converterUfVoParaGetResponseBody(uf);
+                    MunicipioGetResponseBody municipioResponse = municipioService.converterMunicipioParaGetResponseBody(municipio);
+                    BairroGetRequestBody bairroResponse = bairroService.converterBairroVoParaGetResponseBody(bairro);
+                    EnderecoGetRequestBody enderecoResponse = enderecoService.converterEnderecoVoParaGetResponseBody(enderecoVo);
 
-                        municipioResponse.setUf(ufResponse);
-                        bairroResponse.setMunicipio(municipioResponse);
-                        enderecoResponse.setBairro(bairroResponse);
+                    municipioResponse.setUf(ufResponse);
+                    bairroResponse.setMunicipio(municipioResponse);
+                    enderecoResponse.setBairro(bairroResponse);
 
-                        return enderecoResponse;
-                    }).toList();
+                    return enderecoResponse;
+                }).toList();
 
-                    PessoaGetRequestBody pessoaResponse = pessoaMapper.toGetResponseBody(pessoa.get());
-                    pessoaResponse.setEnderecos(enderecosGetResponseBody.reversed());
+                pessoasFiltradas.getFirst().setEnderecos(enderecosGetResponseBody.reversed());
 
-                    return pessoaResponse;
-                }
-
-                return Collections.emptyList();
+                return pessoasFiltradas.getFirst();
             }
-
-            if (codigoPessoa == null && login != null && status == null) {
-                Optional<PessoaVo> pessoa = pessoaRepository.findByLogin(login);
-                if (pessoa.isPresent()) {
-                    PessoaGetRequestBody pessoaGetRequestBody;
-                    pessoaGetRequestBody = pessoaMapper.toGetResponseBody(pessoa.get());
-                    return Collections.singletonList(pessoaGetRequestBody);
-                }
-                return Collections.emptyList();
-            }
-
-            if (codigoPessoa == null && login == null && status != null) {
-                List<PessoaVo> listaDePessoasPorStatus = pessoaRepository.findAllByStatusOrderByCodigoPessoaDesc(status);
-                return listaDePessoasPorStatus.stream()
-                        .map(pessoaMapper::toGetResponseBody)
-                        .collect(Collectors.toList());
-            }
-            return listarTodasPessoas();
+            return pessoasFiltradas;
 
         }catch(ExcecaoPersonalizadaException ex){
             throw new ExcecaoPersonalizadaException("Não foi possível consultar pessoa. " + ex.getMessage());
@@ -120,7 +98,7 @@ public class PessoaService {
         }catch(Exception ex){
             throw new ExcecaoPersonalizadaException("Não foi possível cadastrar a pessoa.");
         }
-        return listarTodasPessoas();
+        return filtrarEOrdenarPessoas(null, null, null);
     }
 
     @Transactional
@@ -158,7 +136,7 @@ public class PessoaService {
 
             enderecoService.save(enderecosSeraoAlterados);
             enderecoService.delete(enderecosParaRemover);
-            return listarTodasPessoas();
+            return filtrarEOrdenarPessoas(null, null, null);
 
         }catch(ExcecaoPersonalizadaException ex) {
             throw new ExcecaoPersonalizadaException("Não foi possível alterar pessoa. " + ex.getMessage());
@@ -185,14 +163,13 @@ public class PessoaService {
         }
     }
 
-    private List<PessoaGetRequestBody> listarTodasPessoas(){
-        List<PessoaVo> todasPessoas = pessoaRepository.findAll();
-        if (!todasPessoas.isEmpty()) {
-            return todasPessoas.stream()
-                    .map(pessoaMapper::toGetResponseBody)
-                    .sorted(Comparator.comparing(PessoaGetRequestBody::getCodigoPessoa).reversed())
-                    .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+    private List<PessoaGetRequestBody> filtrarEOrdenarPessoas(Long codigoPessoa, String login, Integer status){
+        return pessoaRepository.findAll().stream()
+            .filter(pessoaVo -> codigoPessoa == null || pessoaVo.getCodigoPessoa().equals(codigoPessoa))
+            .filter(pessoaVo -> login == null || login.isEmpty() || pessoaVo.getLogin().equals(login))
+            .filter(pessoaVo -> status == null || pessoaVo.getStatus().equals(status))
+            .map(pessoaMapper::toGetResponseBody)
+            .sorted(Comparator.comparing(PessoaGetRequestBody::getCodigoPessoa).reversed())
+            .collect(Collectors.toList());
     }
 }
