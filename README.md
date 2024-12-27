@@ -28,7 +28,6 @@ Este é um projeto desenvolvido em Java utilizando o framework Spring Boot para 
   - Spring Validation
   - Spring JDBC
   - Lombok
-  - Spring AOP
 - **Banco de Dados:** Oracle XE 21
 - **Maven:** Gerenciador de dependências.
 - **Tomcat:** Servidor de aplicação embutido.
